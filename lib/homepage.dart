@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:cropsecure_application/Utils/api_payload.dart';
 import 'package:cropsecure_application/Utils/apiresponse.dart';
+import 'package:cropsecure_application/Utils/appcontroller.dart';
 import 'package:cropsecure_application/Utils/constant.dart';
 import 'package:cropsecure_application/Utils/sharedpref.dart';
 import 'package:cropsecure_application/listdata.dart';
@@ -162,6 +163,7 @@ class _MyHomePageState extends State<MyHomePage> {
   // }
   Future<void> onTapLogin() async {
     // Show loading indicator
+    FocusManager.instance.primaryFocus?.unfocus();
     showDialog(
       context: context,
       barrierDismissible: false, // Prevent user from dismissing the dialog
@@ -207,10 +209,7 @@ class _MyHomePageState extends State<MyHomePage> {
             MaterialPageRoute(builder: (context) => ListData()),
           );
         } else {
-          Fluttertoast.showToast(
-            msg: 'Not Login',
-            backgroundColor: Colors.grey,
-          );
+          toastMsg('Invalid Credential, Please try again!!');
         }
       }
       print(data.toString());

@@ -5,6 +5,7 @@ import 'package:cropsecure_application/Database/db.dart';
 import 'package:cropsecure_application/Database/sqlquery.dart';
 import 'package:cropsecure_application/Model/level1listmodel.dart';
 import 'package:cropsecure_application/Model/level3listmodel.dart';
+import 'package:cropsecure_application/Model/locationcount.dart';
 import 'package:cropsecure_application/Utils/api_payload.dart';
 import 'package:cropsecure_application/Utils/apiresponse.dart';
 import 'package:cropsecure_application/Utils/appcontroller.dart';
@@ -14,10 +15,13 @@ import 'package:cropsecure_application/homepage.dart';
 import 'package:cropsecure_application/leveldialog.dart';
 import 'package:cropsecure_application/main.dart';
 import 'package:cropsecure_application/Model/level2listmodel.dart';
+import 'package:cropsecure_application/mapscreen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class ListData extends StatefulWidget {
   const ListData({Key? key}) : super(key: key);
@@ -27,6 +31,9 @@ class ListData extends StatefulWidget {
 }
 
 class _ListDataState extends State<ListData> {
+  List<DataRow> _rows = [];
+  List<ChartData> _chartData = [];
+
   @override
   void initState() {
     getStateData();
@@ -48,10 +55,9 @@ class _ListDataState extends State<ListData> {
           ),
           onTap: () {
             SharePref.shred.setBool('islogin', false);
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const MyHomePage()),
-            );
+            Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (context) => MyHomePage()),
+                (Route route) => false);
           },
         ),
         title: const Text(
@@ -82,7 +88,6 @@ class _ListDataState extends State<ListData> {
                                 onPressed: () {
                                   getStateData(); // remove it when not in trial use
                                   // Add your onPressed logic here
-
                                   showDialog(
                                     context: context,
                                     builder: (BuildContext context) {
@@ -128,35 +133,36 @@ class _ListDataState extends State<ListData> {
                                 ),
                                 DataColumn(
                                   label: Text(
-                                    'AWS/ARG7',
+                                    'AWS/ARG',
                                     style:
                                         TextStyle(fontWeight: FontWeight.bold),
                                   ),
                                 ),
                               ],
-                              rows: const <DataRow>[
-                                DataRow(
-                                  cells: <DataCell>[
-                                    DataCell(Text('John')),
-                                    DataCell(Text('30')),
-                                    DataCell(Text('Developer')),
-                                  ],
-                                ),
-                                DataRow(
-                                  cells: <DataCell>[
-                                    DataCell(Text('Emily')),
-                                    DataCell(Text('28')),
-                                    DataCell(Text('Designer')),
-                                  ],
-                                ),
-                                DataRow(
-                                  cells: <DataCell>[
-                                    DataCell(Text('Sam')),
-                                    DataCell(Text('35')),
-                                    DataCell(Text('Manager')),
-                                  ],
-                                ),
-                              ],
+                              rows: _rows,
+                              // <DataRow>[
+                              //   DataRow(
+                              //     cells: <DataCell>[
+                              //       DataCell(Text('John')),
+                              //       DataCell(Text('30')),
+                              //       DataCell(Text('Developer')),
+                              //     ],
+                              //   ),
+                              //   DataRow(
+                              //     cells: <DataCell>[
+                              //       DataCell(Text('Emily')),
+                              //       DataCell(Text('28')),
+                              //       DataCell(Text('Designer')),
+                              //     ],
+                              //   ),
+                              //   DataRow(
+                              //     cells: <DataCell>[
+                              //       DataCell(Text('Sam')),
+                              //       DataCell(Text('35')),
+                              //       DataCell(Text('Manager')),
+                              //     ],
+                              //   ),
+                              // ],
                             ),
                           ),
                         ),
@@ -185,16 +191,17 @@ class _ListDataState extends State<ListData> {
                           tooltipBehavior: TooltipBehavior(enable: true),
                           series: <CircularSeries>[
                             DoughnutSeries<ChartData, String>(
-                                dataSource: <ChartData>[
-                                  ChartData('Alpha', 10),
-                                  ChartData('Beta', 20),
-                                  ChartData('Cricket', 30),
-                                  ChartData('Data', 40),
-                                  ChartData('Eat', 39),
-                                  ChartData('Fit', 30),
-                                  ChartData('Goat', 40),
-                                  ChartData('Test', 87),
-                                ],
+                                dataSource: _chartData,
+                                // <ChartData>[
+                                //   ChartData('Alpha', 10),
+                                //   ChartData('Beta', 20),
+                                //   ChartData('Cricket', 30),
+                                //   ChartData('Data', 40),
+                                //   ChartData('Eat', 39),
+                                //   ChartData('Fit', 30),
+                                //   ChartData('Goat', 40),
+                                //   ChartData('Test', 87),
+                                // ],
                                 xValueMapper: (ChartData data, _) =>
                                     data.category,
                                 yValueMapper: (ChartData data, _) => data.value,
@@ -389,12 +396,20 @@ class _ListDataState extends State<ListData> {
               await DB.inst.selectTblName(SqlQuery.inst.Level1LocationTable);
           logSuccess('name', jsonEncode(f1));
           getDistrictData();
+        } else {
+          toastMsg('Access Token Expired, Please login again!!');
+          SharePref.shred.setBool('islogin', false);
+          Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (context) => MyHomePage()),
+              (Route route) => false);
         }
       }
     } catch (e) {
       print('Error: $e');
     }
   }
+
+  // ijuhjgvcb
 
   Future<void> getDistrictData() async {
     try {
@@ -460,7 +475,7 @@ class _ListDataState extends State<ListData> {
   Future<void> getLocationCount() async {
     String token = await SharePref.shred.getString('token');
     logInfo('token', '$token');
-    var data = APIResponse.data.postApiRequest(Constant.LocationCount, {
+    var data = await APIResponse.data.postApiRequest(Constant.LocationCount, {
       "level1_id": 5,
       "level2_id": [446],
       "userId": "633"
@@ -470,9 +485,49 @@ class _ListDataState extends State<ListData> {
       'Authorization': 'Bearer $token',
     });
 
-    if (data != null && data != 'No Data') {
+    if (data != '401' && data != 'No Data') {
       data = jsonDecode(data);
-      print(data);
+      logSuccess('name0', data.toString());
+
+      LocationCount lc = LocationCount.fromMap(data);
+      logSuccess('Location Succes', lc.status);
+      if (lc.status == 'success') {
+        logError("name1", _rows.length.toString());
+        LatLng location = LatLng(37.422, -122.084);
+
+        _rows = lc.data.map((datum) {
+          return DataRow(
+            cells: <DataCell>[
+              DataCell(Text(datum.level1.toString())), // State
+              DataCell(Text(datum.level2.toString())), // District
+              DataCell(Row(
+                children: [
+                  TextButton(onPressed: () {}, child: Text(datum.count)),
+                  IconButton(
+                      onPressed: () async {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => MapScreen(location),
+                          ),
+                        );
+                      },
+                      icon: const Icon(
+                        Icons.add_location,
+                        color: Colors.blue,
+                      )),
+                ],
+              )), // AWS/ARG
+            ],
+          );
+        }).toList();
+
+        _chartData = lc.data.map((datum) {
+          return ChartData(datum.name, int.parse(datum.count));
+        }).toList();
+        logError("name2", _rows.length.toString());
+        setState(() {});
+      }
     }
   }
 }
