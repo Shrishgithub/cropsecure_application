@@ -11,6 +11,7 @@ import 'package:cropsecure_application/Utils/apiresponse.dart';
 import 'package:cropsecure_application/Utils/appcontroller.dart';
 import 'package:cropsecure_application/Utils/constant.dart';
 import 'package:cropsecure_application/Utils/sharedpref.dart';
+import 'package:cropsecure_application/Utils/spinkit.dart';
 import 'package:cropsecure_application/homepage.dart';
 import 'package:cropsecure_application/leveldialog.dart';
 import 'package:cropsecure_application/main.dart';
@@ -36,9 +37,10 @@ class _ListDataState extends State<ListData> {
 
   @override
   void initState() {
-    getStateData();
-    // getLocationCount();
     super.initState();
+    Future.delayed(Duration(milliseconds: 500), getStateData);
+    // getStateData();
+    // getLocationCount();
   }
 
   @override
@@ -86,7 +88,7 @@ class _ListDataState extends State<ListData> {
                             children: [
                               TextButton(
                                 onPressed: () {
-                                  getStateData(); // remove it when not in trial use
+                                  // getStateData(); // remove it when not in trial use
                                   // Add your onPressed logic here
                                   showDialog(
                                     context: context,
@@ -372,6 +374,7 @@ class _ListDataState extends State<ListData> {
 
   Future<void> getStateData() async {
     try {
+      dialogLoader(context, 'please wait...');
       String token = await SharePref.shred.getString('token');
       log('$token', name: 'token1');
       var data = await APIResponse.data.postApiRequest(Constant.Level1Data,
@@ -493,9 +496,10 @@ class _ListDataState extends State<ListData> {
       logSuccess('Location Succes', lc.status);
       if (lc.status == 'success') {
         logError("name1", _rows.length.toString());
-        LatLng location = LatLng(37.422, -122.084);
 
         _rows = lc.data.map((datum) {
+          LatLng location =
+              LatLng(double.parse(datum.lat), double.parse(datum.lon));
           return DataRow(
             cells: <DataCell>[
               DataCell(Text(datum.level1.toString())), // State
@@ -526,6 +530,8 @@ class _ListDataState extends State<ListData> {
           return ChartData(datum.name, int.parse(datum.count));
         }).toList();
         logError("name2", _rows.length.toString());
+        // ignore: use_build_context_synchronously
+        dialogClose(context);
         setState(() {});
       }
     }

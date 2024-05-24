@@ -6,6 +6,7 @@ import 'package:cropsecure_application/Utils/apiresponse.dart';
 import 'package:cropsecure_application/Utils/appcontroller.dart';
 import 'package:cropsecure_application/Utils/constant.dart';
 import 'package:cropsecure_application/Utils/sharedpref.dart';
+import 'package:cropsecure_application/Utils/spinkit.dart';
 import 'package:cropsecure_application/listdata.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -163,20 +164,21 @@ class _MyHomePageState extends State<MyHomePage> {
   // }
   Future<void> onTapLogin() async {
     // Show loading indicator
-    FocusManager.instance.primaryFocus?.unfocus();
-    showDialog(
-      context: context,
-      barrierDismissible: false, // Prevent user from dismissing the dialog
-      builder: (BuildContext context) {
-        return const Center(
-          child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-          ),
-        );
-      },
-    );
+    // FocusManager.instance.primaryFocus?.unfocus();
+    // showDialog(
+    //   context: context,
+    //   barrierDismissible: false, // Prevent user from dismissing the dialog
+    //   builder: (BuildContext context) {
+    //     return const Center(
+    //       child: CircularProgressIndicator(
+    //         valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+    //       ),
+    //     );
+    //   },
+    // );
 
     try {
+      dialogLoader(context, 'Loading...');
       var data = await APIResponse.data.postApiRequest(
         Constant.LOG_IN,
         ApiPayload.inst.login(
@@ -191,7 +193,7 @@ class _MyHomePageState extends State<MyHomePage> {
       );
 
       // Close loading indicator
-      Navigator.pop(context);
+      // Navigator.pop(context);
 
       if (data != '401' && data != 'NoData') {
         data = jsonDecode(data);
@@ -203,15 +205,17 @@ class _MyHomePageState extends State<MyHomePage> {
           String token = await SharePref.shred.getString('token');
           print('$token');
           SharePref.shred.setString('user_id', data['loginRes'][0]['user_id']);
-
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => ListData()),
           );
+          // dialogClose(context);
         } else {
+          dialogClose(context);
           toastMsg('Invalid Credential, Please try again!!');
         }
       }
+
       print(data.toString());
     } catch (e) {
       // Handle any errors
