@@ -491,8 +491,7 @@ class _ListDataState extends State<ListData> {
     if (data != '401' && data != 'No Data') {
       data = jsonDecode(data);
       logSuccess('name0', data.toString());
-      logSuccess('name0', data.toString());
-      //commentsss
+
       LocationCount lc = LocationCount.fromMap(data);
       logSuccess('Location Succes', lc.status);
       if (lc.status == 'success') {
