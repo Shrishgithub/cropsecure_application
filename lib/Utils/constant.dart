@@ -15,4 +15,5 @@ class Constant {
   static const Level2Data = "${Base_URL}getLevel2List";
   static const Level3Data = "${Base_URL}getLevel3List";
   static const LocationCount = "${Base_URL}getLocationCount";
+  static const WheatherParam = "${Base_URL}getParameters";
 }

@@ -14,4 +14,22 @@ class ApiPayload {
   }
 
   // Map level2()
+  Map level2(
+    String userId,
+    List<String> state,
+  ) {
+    return {"level1_id": state, "userId": userId};
+  }
+
+  Map level3(String userId, List<String> district) {
+    return {"level2_id": district, "userId": userId};
+  }
+
+  Map locationList(String userId) {
+    return {
+      "level1_id": 5,
+      "level2_id": [446],
+      "userId": userId
+    };
+  }
 }

@@ -11,7 +11,7 @@ String locationCountToMap(LocationCount data) => json.encode(data.toMap());
 
 class LocationCount {
   String status;
-  List<Datum> data;
+  List<DatumLocMdl> data;
   String locationId;
   int total;
 
@@ -24,7 +24,8 @@ class LocationCount {
 
   factory LocationCount.fromMap(Map<String, dynamic> json) => LocationCount(
         status: json["status"],
-        data: List<Datum>.from(json["data"].map((x) => Datum.fromMap(x))),
+        data: List<DatumLocMdl>.from(
+            json["data"].map((x) => DatumLocMdl.fromMap(x))),
         locationId: json["location_id"],
         total: json["total"],
       );
@@ -37,7 +38,7 @@ class LocationCount {
       };
 }
 
-class Datum {
+class DatumLocMdl {
   int id;
   String name;
   int level1;
@@ -47,7 +48,7 @@ class Datum {
   int level3;
   String count;
 
-  Datum({
+  DatumLocMdl({
     required this.id,
     required this.name,
     required this.level1,
@@ -58,7 +59,7 @@ class Datum {
     required this.count,
   });
 
-  factory Datum.fromMap(Map<String, dynamic> json) => Datum(
+  factory DatumLocMdl.fromMap(Map<String, dynamic> json) => DatumLocMdl(
         id: json["id"],
         name: json["name"],
         level1: json["level1"],

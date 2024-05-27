@@ -10,7 +10,7 @@ String leve2ListToMap(Leve2List data) => json.encode(data.toMap());
 
 class Leve2List {
   String status;
-  List<Datum> data;
+  List<DatumL2> data;
 
   Leve2List({
     required this.status,
@@ -18,36 +18,36 @@ class Leve2List {
   });
 
   factory Leve2List.fromMap(Map<String, dynamic> json) => Leve2List(
-    status: json["status"],
-    data: List<Datum>.from(json["data"].map((x) => Datum.fromMap(x))),
-  );
+        status: json["status"],
+        data: List<DatumL2>.from(json["data"].map((x) => DatumL2.fromMap(x))),
+      );
 
   Map<String, dynamic> toMap() => {
-    "status": status,
-    "data": List<dynamic>.from(data.map((x) => x.toMap())),
-  };
+        "status": status,
+        "data": List<dynamic>.from(data.map((x) => x.toMap())),
+      };
 }
 
-class Datum {
+class DatumL2 {
   String level1Id;
   String level2Id;
   String level2Name;
 
-  Datum({
+  DatumL2({
     required this.level1Id,
     required this.level2Id,
     required this.level2Name,
   });
 
-  factory Datum.fromMap(Map<String, dynamic> json) => Datum(
-    level1Id: json["Level1Id"],
-    level2Id: json["Level2Id"],
-    level2Name: json["Level2Name"],
-  );
+  factory DatumL2.fromMap(Map<String, dynamic> json) => DatumL2(
+        level1Id: json["Level1Id"],
+        level2Id: json["Level2Id"],
+        level2Name: json["Level2Name"],
+      );
 
   Map<String, dynamic> toMap() => {
-    "Level1Id": level1Id,
-    "Level2Id": level2Id,
-    "Level2Name": level2Name,
-  };
+        "Level1Id": level1Id,
+        "Level2Id": level2Id,
+        "Level2Name": level2Name,
+      };
 }

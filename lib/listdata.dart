@@ -14,6 +14,7 @@ import 'package:cropsecure_application/Utils/sharedpref.dart';
 import 'package:cropsecure_application/Utils/spinkit.dart';
 import 'package:cropsecure_application/homepage.dart';
 import 'package:cropsecure_application/leveldialog.dart';
+import 'package:cropsecure_application/locationlist.dart';
 import 'package:cropsecure_application/main.dart';
 import 'package:cropsecure_application/Model/level2listmodel.dart';
 import 'package:cropsecure_application/mapscreen.dart';
@@ -88,7 +89,7 @@ class _ListDataState extends State<ListData> {
                             children: [
                               TextButton(
                                 onPressed: () {
-                                  // getStateData(); // remove it when not in trial use
+                                  getStateData(); // remove it when not in trial use
                                   // Add your onPressed logic here
                                   showDialog(
                                     context: context,
@@ -112,10 +113,10 @@ class _ListDataState extends State<ListData> {
                             padding: const EdgeInsets.only(
                                 left: 8, right: 8, bottom: 8),
                             child: DataTable(
-                              // columnSpacing: 0,
-
+                              columnSpacing: 30,
                               //Use this to set heading height.
                               headingRowHeight: 40,
+
                               dataRowHeight: 30,
                               border: TableBorder.all(),
                               columns: const <DataColumn>[
@@ -157,13 +158,6 @@ class _ListDataState extends State<ListData> {
                               //       DataCell(Text('Designer')),
                               //     ],
                               //   ),
-                              //   DataRow(
-                              //     cells: <DataCell>[
-                              //       DataCell(Text('Sam')),
-                              //       DataCell(Text('35')),
-                              //       DataCell(Text('Manager')),
-                              //     ],
-                              //   ),
                               // ],
                             ),
                           ),
@@ -198,11 +192,6 @@ class _ListDataState extends State<ListData> {
                                 //   ChartData('Alpha', 10),
                                 //   ChartData('Beta', 20),
                                 //   ChartData('Cricket', 30),
-                                //   ChartData('Data', 40),
-                                //   ChartData('Eat', 39),
-                                //   ChartData('Fit', 30),
-                                //   ChartData('Goat', 40),
-                                //   ChartData('Test', 87),
                                 // ],
                                 xValueMapper: (ChartData data, _) =>
                                     data.category,
@@ -373,6 +362,7 @@ class _ListDataState extends State<ListData> {
   }
 
   Future<void> getStateData() async {
+    List<String> state = [];
     try {
       dialogLoader(context, 'please wait...');
       String token = await SharePref.shred.getString('token');
@@ -398,7 +388,12 @@ class _ListDataState extends State<ListData> {
           List f1 =
               await DB.inst.selectTblName(SqlQuery.inst.Level1LocationTable);
           logSuccess('name', jsonEncode(f1));
-          getDistrictData();
+
+          for (DatumL1 datum in ll.data) {
+            state.add(datum.id.toString());
+          }
+          logSuccess('getStateDataID', state.toString());
+          getDistrictData(state);
         } else {
           toastMsg('Access Token Expired, Please login again!!');
           SharePref.shred.setBool('islogin', false);
@@ -406,6 +401,12 @@ class _ListDataState extends State<ListData> {
               MaterialPageRoute(builder: (context) => MyHomePage()),
               (Route route) => false);
         }
+      } else {
+        toastMsg('Access Token Expired, Please login again!!');
+        SharePref.shred.setBool('islogin', false);
+        Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => MyHomePage()),
+            (Route route) => false);
       }
     } catch (e) {
       print('Error: $e');
@@ -414,18 +415,20 @@ class _ListDataState extends State<ListData> {
 
   // ijuhjgvcb
 
-  Future<void> getDistrictData() async {
+  Future<void> getDistrictData(List<String> state) async {
+    List<String> district = [];
     try {
       String token = await SharePref.shred.getString('token');
       log('$token', name: 'token');
-      var data = await APIResponse.data.postApiRequest(Constant.Level2Data, {
-        "level1_id": ["5", "6"],
-        "userId": "633"
-      }, {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': 'Bearer $token',
-      });
+      var data = await APIResponse.data.postApiRequest(
+          Constant.Level2Data,
+          ApiPayload.inst
+              .level2(await SharePref.shred.getString('user_id'), state),
+          {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': 'Bearer $token',
+          });
 
       if (data != '401' && data != 'NoData') {
         data = jsonDecode(data);
@@ -438,7 +441,12 @@ class _ListDataState extends State<ListData> {
           List ff =
               await DB.inst.selectTblName(SqlQuery.inst.Level2LocationTable);
           logSuccess('name', jsonEncode(ff));
-          getBlockData();
+
+          for (DatumL2 datum in l2.data) {
+            district.add(datum.level2Id.toString());
+          }
+          logSuccess('geDistrictDataID', district.toString());
+          getBlockData(district);
         }
       }
     } catch (e) {
@@ -446,18 +454,19 @@ class _ListDataState extends State<ListData> {
     }
   }
 
-  Future<void> getBlockData() async {
+  Future<void> getBlockData(List<String> district) async {
     String token = await SharePref.shred.getString('token');
 
     logInfo('token', '$token');
-    var data = await APIResponse.data.postApiRequest(Constant.Level3Data, {
-      "level2_id": [699],
-      "userId": "633"
-    }, {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'Authorization': 'Bearer $token',
-    });
+    var data = await APIResponse.data.postApiRequest(
+        Constant.Level3Data,
+        ApiPayload.inst
+            .level3(await SharePref.shred.getString('user_id'), district),
+        {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token',
+        });
 
     if (data != '401' && data != 'NoData') {
       data = jsonDecode(data);
@@ -476,37 +485,81 @@ class _ListDataState extends State<ListData> {
   }
 
   Future<void> getLocationCount() async {
+    List<String> state = [];
+    List<String> district = [];
     String token = await SharePref.shred.getString('token');
     logInfo('token', '$token');
-    var data = await APIResponse.data.postApiRequest(Constant.LocationCount, {
-      "level1_id": 5,
-      "level2_id": [446],
-      "userId": "633"
-    }, {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'Authorization': 'Bearer $token',
-    });
+    var data = await APIResponse.data.postApiRequest(
+        Constant.LocationCount,
+        ApiPayload.inst
+            .locationList(await SharePref.shred.getString('user_id')),
+        {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token',
+        });
 
     if (data != '401' && data != 'No Data') {
       data = jsonDecode(data);
       logSuccess('name0', data.toString());
-
       LocationCount lc = LocationCount.fromMap(data);
       logSuccess('Location Succes', lc.status);
       if (lc.status == 'success') {
         logError("name1", _rows.length.toString());
+        for (DatumLocMdl datum in lc.data) {
+          state.add(datum.level1.toString());
+          district.add(datum.level2.toString());
+        }
+
+        String sqlQuery1 =
+            'SELECT * FROM ${SqlQuery.inst.Level1LocationTable} WHERE id IN (${List.filled(state.length, '?').join(', ')})';
+        logInfo('Meesage1', sqlQuery1);
+        logInfo('Meesage1', state.toString());
+        List vv = await DB.inst.select(sqlQuery1, state);
+        // Extract the names
+        List<String> nameState =
+            vv.map((row) => row['name'].toString()).toList();
+        String name = nameState.join(', ');
+        logInfo('Meesage1', vv.toString());
+        logInfo('Meesage1', name);
+
+        String sqlQuery2 =
+            'SELECT * FROM ${SqlQuery.inst.Level2LocationTable} WHERE Level2Id IN (${List.filled(district.length, '?').join(',')})';
+        logInfo('Message2', sqlQuery2);
+        logInfo('Message2', district.toString());
+        List dd = await DB.inst.select(sqlQuery2, district);
+        // Extract the district
+        List<String> nameDistrict =
+            dd.map((row) => row['Level2Name'].toString()).toList();
+        String d11 = nameDistrict.join(', ');
+        logInfo('Meesage1', dd.toString());
+        logInfo('Meesage1', d11);
 
         _rows = lc.data.map((datum) {
           LatLng location =
               LatLng(double.parse(datum.lat), double.parse(datum.lon));
           return DataRow(
             cells: <DataCell>[
-              DataCell(Text(datum.level1.toString())), // State
-              DataCell(Text(datum.level2.toString())), // District
+              DataCell(Text(
+                name,
+                textAlign: TextAlign.center,
+              )), // State
+              DataCell(Text(
+                d11,
+                textAlign: TextAlign.start,
+              )), // District
               DataCell(Row(
                 children: [
-                  TextButton(onPressed: () {}, child: Text(datum.count)),
+                  TextButton(
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return LocationListApp();
+                          },
+                        );
+                      },
+                      child: Text(datum.count)),
                   IconButton(
                       onPressed: () async {
                         Navigator.push(
