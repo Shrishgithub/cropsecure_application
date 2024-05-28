@@ -492,7 +492,7 @@ class _ListDataState extends State<ListData> {
     var data = await APIResponse.data.postApiRequest(
         Constant.LocationCount,
         ApiPayload.inst
-            .locationList(await SharePref.shred.getString('user_id')),
+            .locationCount(await SharePref.shred.getString('user_id')),
         {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
@@ -552,12 +552,14 @@ class _ListDataState extends State<ListData> {
                 children: [
                   TextButton(
                       onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return LocationListApp();
-                          },
-                        );
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => LocationListApp()));
+                        // showDialog(
+                        //   context: context,
+                        //   builder: (BuildContext context) {
+                        //     return LocationListApp();
+                        //   },
+                        // );
                       },
                       child: Text(datum.count)),
                   IconButton(

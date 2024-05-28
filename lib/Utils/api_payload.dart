@@ -25,11 +25,15 @@ class ApiPayload {
     return {"level2_id": district, "userId": userId};
   }
 
-  Map locationList(String userId) {
+  Map locationCount(String userId) {
     return {
       "level1_id": 5,
       "level2_id": [446],
       "userId": userId
     };
+  }
+
+  Map locationList() {
+    return {"level1_id": 5, "level2_id": 454, "userId": "3812"};
   }
 }

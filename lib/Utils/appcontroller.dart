@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -9,6 +10,24 @@ import 'package:fluttertoast/fluttertoast.dart';
 //   AppController controller =
 
 // }
+/*Check Internet Connectivity*/
+Future<bool> muIsNetworkAvailable([bool isToast = true]) async {
+  try {
+    final result = await InternetAddress.lookup('google.com');
+
+    if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+      return true;
+    } else {
+      toastMsg('Check Newtork Connection');
+      return false;
+    }
+  } on SocketException catch (ex) {
+    logError('muIsNetworkAvailable', 'Internet Not Connected $ex');
+    toastMsg('Check Newtork Connection');
+    return false;
+  }
+}
+
 /*TOAST MESSAGE*/
 toastMsg(String value) {
   Fluttertoast.cancel();

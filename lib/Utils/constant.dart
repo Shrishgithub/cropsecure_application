@@ -10,10 +10,14 @@ import 'package:flutter/cupertino.dart';
 // }
 class Constant {
   static const Base_URL = "https://aiapi.cropsecure.in/AwsSecusence/";
-  static const LOG_IN = "${Base_URL}login";
-  static const Level1Data = "${Base_URL}getLevel1List";
-  static const Level2Data = "${Base_URL}getLevel2List";
-  static const Level3Data = "${Base_URL}getLevel3List";
-  static const LocationCount = "${Base_URL}getLocationCount";
-  static const WheatherParam = "${Base_URL}getParameters";
+  static const LOG_IN = "${Base_URL}login"; // Used
+  static const Level1Data =
+      "${Base_URL}getLevel1List"; // Used // Set to Database and show name from DB // But shorting remain
+  static const Level2Data =
+      "${Base_URL}getLevel2List"; // Used // Set to Database and show name from DB // But shorting remain
+  static const Level3Data =
+      "${Base_URL}getLevel3List"; // Used // Set to Database and show name from DB // But shorting remain
+  static const LocationCount = "${Base_URL}getLocationCount"; // USed
+  static const WheatherParam = "${Base_URL}getParameters"; // Not used yet
+  static const LocationList = "${Base_URL}getLocationList"; // USed
 }

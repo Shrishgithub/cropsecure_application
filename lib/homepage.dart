@@ -176,58 +176,62 @@ class _MyHomePageState extends State<MyHomePage> {
     //     );
     //   },
     // );
+    if (await muIsNetworkAvailable()) {
+      try {
+        dialogLoader(context, 'Loading...');
+        var data = await APIResponse.data.postApiRequest(
+          Constant.LOG_IN,
+          ApiPayload.inst.login(
+            _groupIdController.text.toString(),
+            _userIdController.text.toString(),
+            _passwordController.text,
+          ),
+          {
+            'Content-Type': 'application/json',
+            //'Authorization': 'Bearer $token',
+          },
+        );
 
-    try {
-      dialogLoader(context, 'Loading...');
-      var data = await APIResponse.data.postApiRequest(
-        Constant.LOG_IN,
-        ApiPayload.inst.login(
-          _groupIdController.text.toString(),
-          _userIdController.text.toString(),
-          _passwordController.text,
-        ),
-        {
-          'Content-Type': 'application/json',
-          //'Authorization': 'Bearer $token',
-        },
-      );
+        // Close loading indicator
+        // Navigator.pop(context);
 
-      // Close loading indicator
-      // Navigator.pop(context);
-
-      if (data != '401' && data != 'NoData') {
-        data = jsonDecode(data);
-        if (data['status'] == 'success') {
-          log(data['loginRes'].toString(), name: 'data');
-          log(data['loginRes'][0]['token'].toString(), name: 'data');
-          SharePref.shred.setBool('islogin', true);
-          SharePref.shred.setString('token', data['loginRes'][0]['token']);
-          String token = await SharePref.shred.getString('token');
-          print('$token');
-          SharePref.shred.setString('user_id', data['loginRes'][0]['user_id']);
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => ListData()),
-          );
-          // dialogClose(context);
-        } else {
-          dialogClose(context);
-          toastMsg('Invalid Credential, Please try again!!');
+        if (data != '401' && data != 'NoData') {
+          data = jsonDecode(data);
+          if (data['status'] == 'success') {
+            log(data['loginRes'].toString(), name: 'data');
+            log(data['loginRes'][0]['token'].toString(), name: 'data');
+            SharePref.shred.setBool('islogin', true);
+            SharePref.shred.setString('token', data['loginRes'][0]['token']);
+            String token = await SharePref.shred.getString('token');
+            print('$token');
+            SharePref.shred
+                .setString('user_id', data['loginRes'][0]['user_id']);
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => ListData()),
+            );
+            // dialogClose(context);
+          } else {
+            dialogClose(context);
+            toastMsg('Invalid Credential, Please try again!!');
+          }
         }
-      }
 
-      print(data.toString());
-    } catch (e) {
-      // Handle any errors
-      print('Error: $e');
-      // Close loading indicator
-      Navigator.pop(context);
-      // Optionally, show an error message to the user
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('An error occurred. Please try again.'),
-        ),
-      );
+        print(data.toString());
+      } catch (e) {
+        // Handle any errors
+        print('Error: $e');
+        // Close Dialog
+        dialogClose(context);
+        // Close loading indicator
+        Navigator.pop(context);
+        // Optionally, show an error message to the user
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('An error occurred. Please try again.'),
+          ),
+        );
+      }
     }
   }
 }
