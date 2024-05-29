@@ -33,7 +33,7 @@ class ApiPayload {
     };
   }
 
-  Map locationList() {
-    return {"level1_id": 5, "level2_id": 454, "userId": "3812"};
+  Map locationList(int level1Id, int level2Id, String userId) {
+    return {"level1_id": level1Id, "level2_id": level2Id, "userId": userId};
   }
 }

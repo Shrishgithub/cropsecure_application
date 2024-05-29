@@ -89,7 +89,7 @@ class _ListDataState extends State<ListData> {
                             children: [
                               TextButton(
                                 onPressed: () {
-                                  getStateData(); // remove it when not in trial use
+                                  // getStateData(); // remove it when not in trial use
                                   // Add your onPressed logic here
                                   showDialog(
                                     context: context,
@@ -551,9 +551,14 @@ class _ListDataState extends State<ListData> {
               DataCell(Row(
                 children: [
                   TextButton(
-                      onPressed: () {
+                      onPressed: () async {
+                        String userId =
+                            await SharePref.shred.getString('user_id');
                         Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => LocationListApp()));
+                            builder: (context) => LocationListApp(
+                                level1: datum.level1,
+                                level2: datum.level2,
+                                userid: userId)));
                         // showDialog(
                         //   context: context,
                         //   builder: (BuildContext context) {
@@ -564,10 +569,17 @@ class _ListDataState extends State<ListData> {
                       child: Text(datum.count)),
                   IconButton(
                       onPressed: () async {
+                        String userId =
+                            await SharePref.shred.getString('user_id');
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => MapScreen(location),
+                            builder: (context) =>
+                                // MapScreen(),
+                                MapScreen(
+                                    level1: datum.level1,
+                                    level2: datum.level2,
+                                    userid: userId), //
                           ),
                         );
                       },
