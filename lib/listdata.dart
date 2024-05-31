@@ -36,6 +36,8 @@ class _ListDataState extends State<ListData> {
   List<DataRow> _rows = [];
   List<ChartData> _chartData = [];
 
+  static _ListDataState list = _ListDataState();
+
   @override
   void initState() {
     super.initState();
