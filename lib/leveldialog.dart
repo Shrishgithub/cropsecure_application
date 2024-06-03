@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:convert';
+import 'package:cropsecure_application/Utils/sharedpref.dart';
 import 'package:flutter/material.dart';
 import 'package:cropsecure_application/Database/db.dart';
 import 'package:cropsecure_application/Database/sqlquery.dart';
@@ -28,6 +30,7 @@ class _MyDialogState extends State<MyDialog> {
   // Map to store state names and their corresponding IDs
   Map<String, String> _stateIdMap = {};
   Map<String, String> _districtIdMap = {};
+  Map<String, String> _blockIdMap = {};
 
   @override
   Widget build(BuildContext context) {
@@ -70,13 +73,17 @@ class _MyDialogState extends State<MyDialog> {
           child: Text('Close'),
         ),
         TextButton(
-          onPressed: () {
+          onPressed: () async {
             // Do something with the selected values
+            print(_stateIdMap[_selectedState]);
             print('Selected State: $_selectedState');
             print('Selected District: $_selectedDistrict');
             print('Selected Block: $_selectedBlock');
+            // String UserId = await SharePref.shred.getString('user_id');
+
+            Map<String, Object?> selectedValues = await _selectedValues();
             // getLocationCount();
-            Navigator.of(context).pop();
+            Navigator.of(context).pop(selectedValues);
           },
           child: Text('Submit'),
         ),
@@ -184,7 +191,18 @@ class _MyDialogState extends State<MyDialog> {
       logSuccess('Block Data', result.toString());
 
       // Map the results to a list of block names
-      _blocks = result.map((row) => row['Level3Name'].toString()).toList();
+      // _blocks = result.map((row) => row['Level3Name'].toString()).toList();
+
+      _blocks = [];
+      _blockIdMap = {};
+      result.forEach(
+        (row) {
+          String name = row['Level3Name'].toString();
+          String id = row['Level3Id'].toString();
+          _blocks.add(name);
+          _blockIdMap[name] = id;
+        },
+      );
 
       // Update the blocks list
       setState(() {
@@ -195,6 +213,28 @@ class _MyDialogState extends State<MyDialog> {
       logInfo('Block List for District $districtId', result.toString());
     } catch (e) {
       logError('Error fetching block data', e.toString());
+    }
+  }
+
+  Future<Map<String, Object?>> _selectedValues() async {
+    try {
+      String userId = await SharePref.shred.getString('user_id');
+      final selectedValues = {
+        "level1_id": _stateIdMap[
+            _selectedState], //jsonEncode(_stateIdMap[_selectedState]),
+        "level2_id": [
+          _districtIdMap[_selectedDistrict]
+        ], //jsonEncode([_districtIdMap[_selectedDistrict]]),
+        "location_id": _blockIdMap[
+            _selectedBlock], //jsonEncode(_blockIdMap[_selectedBlock]),
+        "userId": userId
+      };
+
+      logInfo("Selected Values", selectedValues.toString());
+      return selectedValues;
+    } catch (e) {
+      logError("Error in _selectedValues", e.toString());
+      return {};
     }
   }
 }

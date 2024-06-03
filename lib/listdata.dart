@@ -36,7 +36,7 @@ class _ListDataState extends State<ListData> {
   List<DataRow> _rows = [];
   List<ChartData> _chartData = [];
 
-  static _ListDataState list = _ListDataState();
+  // static _ListDataState list = _ListDataState();
 
   @override
   void initState() {
@@ -90,15 +90,10 @@ class _ListDataState extends State<ListData> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               TextButton(
-                                onPressed: () {
+                                onPressed: () async {
                                   // getStateData(); // remove it when not in trial use
                                   // Add your onPressed logic here
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return MyDialog();
-                                    },
-                                  );
+                                  await _callDialog(context);
                                 },
                                 child: Icon(Icons.filter_alt_rounded),
                               ),
@@ -111,56 +106,66 @@ class _ListDataState extends State<ListData> {
                         width: w,
                         child: SingleChildScrollView(
                           scrollDirection: Axis.vertical,
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                                left: 8, right: 8, bottom: 8),
-                            child: DataTable(
-                              columnSpacing: 30,
-                              //Use this to set heading height.
-                              headingRowHeight: 40,
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 8, right: 8, bottom: 8),
+                              child: DataTable(
+                                columnSpacing: 30,
+                                //Use this to set heading height.
+                                headingRowHeight: 40,
 
-                              dataRowHeight: 30,
-                              border: TableBorder.all(),
-                              columns: const <DataColumn>[
-                                DataColumn(
-                                  label: Text(
-                                    'State',
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold),
+                                dataRowHeight: 30,
+                                border: TableBorder.all(),
+                                columns: const <DataColumn>[
+                                  DataColumn(
+                                    label: Text(
+                                      'State',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    ),
                                   ),
-                                ),
-                                DataColumn(
-                                  label: Text(
-                                    'District',
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold),
+                                  DataColumn(
+                                    label: Text(
+                                      'District',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    ),
                                   ),
-                                ),
-                                DataColumn(
-                                  label: Text(
-                                    'AWS/ARG',
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold),
+                                  DataColumn(
+                                    label: Text(
+                                      'Block',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    ),
                                   ),
-                                ),
-                              ],
-                              rows: _rows,
-                              // <DataRow>[
-                              //   DataRow(
-                              //     cells: <DataCell>[
-                              //       DataCell(Text('John')),
-                              //       DataCell(Text('30')),
-                              //       DataCell(Text('Developer')),
-                              //     ],
-                              //   ),
-                              //   DataRow(
-                              //     cells: <DataCell>[
-                              //       DataCell(Text('Emily')),
-                              //       DataCell(Text('28')),
-                              //       DataCell(Text('Designer')),
-                              //     ],
-                              //   ),
-                              // ],
+                                  DataColumn(
+                                    label: Text(
+                                      'AWS/ARG',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                ],
+                                rows: _rows,
+                                // <DataRow>[
+                                //   DataRow(
+                                //     cells: <DataCell>[
+                                //       DataCell(Text('John')),
+                                //       DataCell(Text('30')),
+                                //       DataCell(Text('Developer')),
+                                //     ],
+                                //   ),
+                                //   DataRow(
+                                //     cells: <DataCell>[
+                                //       DataCell(Text('Emily')),
+                                //       DataCell(Text('28')),
+                                //       DataCell(Text('Designer')),
+                                //     ],
+                                //   ),
+                                // ],
+                              ),
                             ),
                           ),
                         ),
@@ -481,20 +486,22 @@ class _ListDataState extends State<ListData> {
         List f3 =
             await DB.inst.selectTblName(SqlQuery.inst.Level3LocationTable);
         logSuccess('Block', jsonEncode(f3));
-        getLocationCount();
+        _getFromDB();
       }
     }
   }
 
-  Future<void> getLocationCount() async {
+  Future<void> getLocationCount(Map<String, dynamic> selectedValues) async {
     List<String> state = [];
     List<String> district = [];
+    List<String> block = [];
     String token = await SharePref.shred.getString('token');
     logInfo('token', '$token');
     var data = await APIResponse.data.postApiRequest(
         Constant.LocationCount,
-        ApiPayload.inst
-            .locationCount(await SharePref.shred.getString('user_id')),
+        // ApiPayload.inst
+        //     .locationCount(await SharePref.shred.getString('user_id')),
+        selectedValues,
         {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
@@ -511,6 +518,7 @@ class _ListDataState extends State<ListData> {
         for (DatumLocMdl datum in lc.data) {
           state.add(datum.level1.toString());
           district.add(datum.level2.toString());
+          block.add(datum.level3.toString());
         }
 
         String sqlQuery1 =
@@ -537,6 +545,18 @@ class _ListDataState extends State<ListData> {
         logInfo('Meesage1', dd.toString());
         logInfo('Meesage1', d11);
 
+        String sqlQuery3 =
+            'SELECT * FROM ${SqlQuery.inst.Level3LocationTable} WHERE Level3Id IN (${List.filled(block.length, '?').join(',')})';
+        logInfo('Message3', sqlQuery3);
+        logInfo('Message3', block.toString());
+        List bb = await DB.inst.select(sqlQuery3, block);
+        // Extract the district
+        List<String> nameBLock =
+            bb.map((row) => row['Level3Name'].toString()).toList();
+        String b11 = nameBLock.join(', ');
+        logInfo('Meesage1', bb.toString());
+        logInfo('Meesage1', b11);
+
         _rows = lc.data.map((datum) {
           LatLng location =
               LatLng(double.parse(datum.lat), double.parse(datum.lon));
@@ -549,7 +569,11 @@ class _ListDataState extends State<ListData> {
               DataCell(Text(
                 d11,
                 textAlign: TextAlign.start,
-              )), // District
+              )),
+              DataCell(Text(
+                b11,
+                textAlign: TextAlign.start,
+              )), // Block
               DataCell(Row(
                 children: [
                   TextButton(
@@ -560,6 +584,7 @@ class _ListDataState extends State<ListData> {
                             builder: (context) => LocationListApp(
                                 level1: datum.level1,
                                 level2: datum.level2,
+                                level3: datum.level3,
                                 userid: userId)));
                         // showDialog(
                         //   context: context,
@@ -581,6 +606,7 @@ class _ListDataState extends State<ListData> {
                                 MapScreen(
                                     level1: datum.level1,
                                     level2: datum.level2,
+                                    level3: datum.level3,
                                     userid: userId), //
                           ),
                         );
@@ -603,6 +629,66 @@ class _ListDataState extends State<ListData> {
         dialogClose(context);
         setState(() {});
       }
+    }
+  }
+
+  Future<void> _callDialog(BuildContext context) async {
+    Map<String, Object?> value = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return MyDialog();
+      },
+    );
+    await getLocationCount(value); //pass the data after applying dialog filter
+    print(value);
+  }
+
+  Future<void> _getFromDB() async {
+    // get 1st id Data from DB using State
+    String stateQuery = 'SELECT * FROM ${SqlQuery.inst.Level1LocationTable}';
+    logSuccess('StateQuery', stateQuery);
+
+    // Fetch the data from the database
+    List result = await DB.inst.select(stateQuery, []);
+    print('_getFromDB' + result.toString());
+
+    // Check if result is not empty and retrieve the id
+    if (result.isNotEmpty) {
+      String firstStateId = result.first['id'].toString();
+      print('First State ID: $firstStateId');
+
+      // get Data from DB of District //
+      _getDistrictQuery(firstStateId);
+    } else {
+      print('No states found in the database.');
+    }
+  }
+
+  Future<void> _getDistrictQuery(String firstStateId) async {
+    String districtQuery = 'SELECT * FROM ${SqlQuery.inst.Level2LocationTable}';
+    logSuccess('StateQuery', districtQuery);
+
+    // Fetch the data from the database
+    List result = await DB.inst.select(districtQuery, []);
+    print('_getDistrictFromDB' + result.toString());
+
+    // Check if result is not empty and retrieve the id
+    if (result.isNotEmpty) {
+      int StateIdd = int.parse(firstStateId);
+      String firstDistrictId = result.first['Level2Id'].toString();
+      print('First District ID: $firstDistrictId');
+      int DistrictIdd = int.parse(firstDistrictId);
+      String UserId = await SharePref.shred.getString('user_id');
+
+      final selectedValues = {
+        "level1_id": StateIdd,
+        "level2_id": [DistrictIdd],
+        "userId": UserId
+      };
+
+      getLocationCount(selectedValues);
+    } else {
+      print('No District found in the database.');
     }
   }
 }

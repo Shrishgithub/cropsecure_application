@@ -17,9 +17,13 @@ import 'package:flutter/material.dart';
 class LocationListApp extends StatefulWidget {
   final int level1;
   final int level2;
+  final int level3;
   final String userid;
   const LocationListApp(
-      {required this.level1, required this.level2, required this.userid});
+      {required this.level1,
+      required this.level2,
+      required this.level3,
+      required this.userid});
 
   @override
   State<LocationListApp> createState() => _LocationListAppState();
@@ -135,8 +139,8 @@ class _LocationListAppState extends State<LocationListApp> {
       logInfo('token', token);
       var response = await APIResponse.data.postApiRequest(
           Constant.LocationList,
-          ApiPayload.inst
-              .locationList(widget.level1, widget.level2, widget.userid),
+          ApiPayload.inst.locationList(
+              widget.level1, widget.level2, widget.level3, widget.userid),
           {
             'Content-Type': 'application/json',
             'Accept': 'application/json',

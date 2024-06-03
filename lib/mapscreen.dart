@@ -14,9 +14,13 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 class MapScreen extends StatefulWidget {
   final int level1;
   final int level2;
+  final int level3;
   final String userid;
   const MapScreen(
-      {required this.level1, required this.level2, required this.userid});
+      {required this.level1,
+      required this.level2,
+      required this.level3,
+      required this.userid});
 
   @override
   _MapScreenState createState() => _MapScreenState();
@@ -72,8 +76,8 @@ class _MapScreenState extends State<MapScreen> {
     logInfo('token', token);
     var response = await APIResponse.data.postApiRequest(
         Constant.LocationList,
-        ApiPayload.inst
-            .locationList(widget.level1, widget.level2, widget.userid),
+        ApiPayload.inst.locationList(
+            widget.level1, widget.level2, widget.level3, widget.userid),
         {
           'Content-Type': 'application/json',
           'Accept': 'application/json',

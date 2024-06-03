@@ -67,7 +67,7 @@ class DatumLocMdl {
         lon: json["lon"],
         level2: json["level2"],
         level3: json["level3"],
-        count: json["count"],
+        count: json["count"].toString(),
       );
 
   Map<String, dynamic> toMap() => {
