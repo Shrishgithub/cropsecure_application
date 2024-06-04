@@ -523,15 +523,15 @@ class _ListDataState extends State<ListData> {
 
         String sqlQuery1 =
             'SELECT * FROM ${SqlQuery.inst.Level1LocationTable} WHERE id IN (${List.filled(state.length, '?').join(', ')})';
-        logInfo('Meesage1', sqlQuery1);
-        logInfo('Meesage1', state.toString());
+        logInfo('Message1', sqlQuery1);
+        logInfo('Message1', state.toString());
         List vv = await DB.inst.select(sqlQuery1, state);
         // Extract the names
         List<String> nameState =
             vv.map((row) => row['name'].toString()).toList();
         String name = nameState.join(', ');
-        logInfo('Meesage1', vv.toString());
-        logInfo('Meesage1', name);
+        logInfo('Message1', vv.toString());
+        logInfo('Message1', name);
 
         String sqlQuery2 =
             'SELECT * FROM ${SqlQuery.inst.Level2LocationTable} WHERE Level2Id IN (${List.filled(district.length, '?').join(',')})';
@@ -545,17 +545,55 @@ class _ListDataState extends State<ListData> {
         logInfo('Meesage1', dd.toString());
         logInfo('Meesage1', d11);
 
+        String getDistrictName(int level2Id) {
+          for (Map district in dd) {
+            logError('calling', district['Level2Id'].toString());
+            logError('calling', district['Level2Name'].toString());
+            logInfo('name', level2Id.toString());
+            if (int.parse(district['Level2Id']) == level2Id) {
+              logError('calling', 'Internal');
+
+              return district['Level2Name'];
+            }
+          }
+          return '';
+        }
+
+        // String sqlQuery3 =
+        //     'SELECT * FROM ${SqlQuery.inst.Level3LocationTable} WHERE Level3Id IN (${List.filled(block.length, '?').join(',')})';
+        // logInfo('Message3', sqlQuery3);
+        // logInfo('Message3', block.toString());
+        // List bb = await DB.inst.select(sqlQuery3, block);
+        // // Extract the district
+        // List<String> nameBLock =
+        //     bb.map((row) => row['Level3Name'].toString()).toList();
+        // String b11 = nameBLock.join(', ');
+        // logInfo('Message3', bb.toString());
+        // logInfo('Message3', b11);
         String sqlQuery3 =
-            'SELECT * FROM ${SqlQuery.inst.Level3LocationTable} WHERE Level3Id IN (${List.filled(block.length, '?').join(',')})';
-        logInfo('Message3', sqlQuery3);
-        logInfo('Message3', block.toString());
+            'SELECT * FROM ${SqlQuery.inst.Level3LocationTable} WHERE Level3Id IN (${List.filled(block.length, '?').join(', ')})';
+        logInfo('BlockQuery', sqlQuery3);
+        logInfo('Block Data', block.toString());
         List bb = await DB.inst.select(sqlQuery3, block);
-        // Extract the district
-        List<String> nameBLock =
+        // Extract the names
+        List<String> nameBlock =
             bb.map((row) => row['Level3Name'].toString()).toList();
-        String b11 = nameBLock.join(', ');
-        logInfo('Meesage1', bb.toString());
-        logInfo('Meesage1', b11);
+        String Blname = nameBlock.join(', ');
+        logInfo('Block List', bb.toString());
+        logInfo('Blocks', Blname);
+        String getBlocName(int level3Id) {
+          for (Map block in bb) {
+            logError('calling', block['Level3Id'].toString());
+            logError('calling', block['Level3Name'].toString());
+            logInfo('name', level3Id.toString());
+            if (int.parse(block['Level3Id']) == level3Id) {
+              logError('calling', 'Internal');
+
+              return block['Level3Name'];
+            }
+          }
+          return '';
+        }
 
         _rows = lc.data.map((datum) {
           LatLng location =
@@ -567,11 +605,11 @@ class _ListDataState extends State<ListData> {
                 textAlign: TextAlign.center,
               )), // State
               DataCell(Text(
-                d11,
+                getDistrictName(datum.level2), //d11
                 textAlign: TextAlign.start,
               )),
               DataCell(Text(
-                b11,
+                getBlocName(datum.level3), //b11
                 textAlign: TextAlign.start,
               )), // Block
               DataCell(Row(
