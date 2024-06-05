@@ -29,6 +29,7 @@ class MapScreen extends StatefulWidget {
 class _MapScreenState extends State<MapScreen> {
   GoogleMapController? _controller;
   List<DatumLocList> locations = [];
+
   LatLng initialPosition = LatLng(20.5937, 78.9629); // Default initial position
 
   @override
@@ -49,6 +50,28 @@ class _MapScreenState extends State<MapScreen> {
               ),
             ))
         .toSet();
+  }
+
+  LatLngBounds _calculateBounds() {
+    double southWestLat = double.infinity;
+    double southWestLng = double.infinity;
+    double northEastLat = -double.infinity;
+    double northEastLng = -double.infinity;
+
+    for (var location in locations) {
+      double lat = double.parse(location.lat);
+      double lng = double.parse(location.lon);
+
+      if (lat < southWestLat) southWestLat = lat;
+      if (lng < southWestLng) southWestLng = lng;
+      if (lat > northEastLat) northEastLat = lat;
+      if (lng > northEastLng) northEastLng = lng;
+    }
+
+    return LatLngBounds(
+      southwest: LatLng(southWestLat, southWestLng),
+      northeast: LatLng(northEastLat, northEastLng),
+    );
   }
 
   @override
@@ -99,7 +122,12 @@ class _MapScreenState extends State<MapScreen> {
               locations[0].lon.isNotEmpty) {
             initialPosition = LatLng(
                 double.parse(locations[0].lat), double.parse(locations[0].lon));
-            _controller?.animateCamera(CameraUpdate.newLatLng(initialPosition));
+
+            LatLngBounds bounds = _calculateBounds();
+
+            // _controller?.animateCamera(CameraUpdate.newLatLng(initialPosition));
+            _controller
+                ?.animateCamera(CameraUpdate.newLatLngBounds(bounds, 200));
           }
           dialogClose(context);
         });

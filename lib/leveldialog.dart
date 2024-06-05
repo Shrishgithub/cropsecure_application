@@ -39,34 +39,50 @@ class _MyDialogState extends State<MyDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text('Select Location'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          _buildDropdownFormField('Select State', _selectedState, _states,
-              (value) {
-            setState(() {
-              _selectedState = value;
-              // When a state is selected, fetch and set the corresponding districts
-              _getDistrictsForState(
-                  _stateIdMap[value!]!); // Retrieve state ID from map
-            });
-          }),
-          _buildMultiSelectFormField(
-              'Select District', _selectedDistricts, _districts, (values) {
-            setState(() {
-              _selectedDistricts = values;
-              // When districts are selected, fetch and set the corresponding blocks
-              _getBlocksForDistricts(values);
-            });
-          }),
-          _buildMultiSelectFormField('Select Block', _selectedBlocks, _blocks,
-              (values) {
-            setState(() {
-              _selectedBlocks = values;
-            });
-          }),
-        ],
+      content: SizedBox(
+        width: MediaQuery.of(context).size.width,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              _buildDropdownFormField('Select State', _selectedState, _states,
+                  (value) {
+                setState(() {
+                  _selectedState = value;
+                  // When a state is selected, fetch and set the corresponding districts
+                  _getDistrictsForState(
+                      _stateIdMap[value!]!); // Retrieve state ID from map
+                });
+              }),
+              Container(
+                height: 5,
+              ),
+              _buildMultiSelectFormField(
+                  'Select District', _selectedDistricts, _districts, (values) {
+                setState(() {
+                  _selectedDistricts = values;
+                  // When districts are selected, fetch and set the corresponding blocks
+                  _getBlocksForDistricts(values);
+                });
+              }),
+              Container(
+                height: 5,
+              ),
+              _buildMultiSelectFormField(
+                  'Select Block', _selectedBlocks, _blocks, (values) {
+                setState(() {
+                  _selectedBlocks = values;
+                });
+              }),
+            ],
+          ),
+        ),
       ),
+      insetPadding: const EdgeInsets.all(10),
+      // shape: RoundedRectangleBorder(
+      //     borderRadius: BorderRadius.all(Radius.circular(10.0))),
+
+      // content:
       actions: <Widget>[
         TextButton(
           onPressed: () {
@@ -97,16 +113,28 @@ class _MyDialogState extends State<MyDialog> {
       ValueChanged<String?> onChanged) {
     return FormField<String>(
       builder: (FormFieldState<String> state) {
-        return DropdownButtonFormField(
-          value: value,
-          hint: Text(hint),
-          items: items.map((String item) {
-            return DropdownMenuItem(
-              value: item,
-              child: Text(item),
-            );
-          }).toList(),
-          onChanged: onChanged,
+        return InputDecorator(
+          decoration: InputDecoration(
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(5.0),
+            ),
+            contentPadding:
+                EdgeInsets.symmetric(horizontal: 12.0, vertical: 10.0),
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButtonFormField<String>(
+              value: value,
+              hint: Text(hint),
+              items: items.map((String item) {
+                return DropdownMenuItem<String>(
+                  value: item,
+                  child: Text(item),
+                );
+              }).toList(),
+              onChanged: onChanged,
+              decoration: InputDecoration.collapsed(hintText: ''),
+            ),
+          ),
         );
       },
     );
@@ -115,14 +143,18 @@ class _MyDialogState extends State<MyDialog> {
   Widget _buildMultiSelectFormField(String hint, List<String> selectedValues,
       List<String> items, ValueChanged<List<String>> onChanged) {
     return MultiSelectDialogField(
-      items: items.map((item) => MultiSelectItem(item, item)).toList(),
+      items: items.map((item) => MultiSelectItem<String>(item, item)).toList(),
       title: Text(hint),
-      selectedColor: Theme.of(context).primaryColor,
+      selectedColor: Colors.blue,
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey),
-        borderRadius: BorderRadius.circular(5),
+        borderRadius: BorderRadius.circular(5.0),
       ),
-      buttonText: Text(hint),
+      buttonIcon: Icon(Icons.arrow_drop_down),
+      buttonText: Text(
+        hint,
+        style: TextStyle(fontSize: 16),
+      ),
       onConfirm: onChanged,
       initialValue: selectedValues,
     );
@@ -255,7 +287,6 @@ class _MyDialogState extends State<MyDialog> {
     }
   }
 }
-
 
 //Code for Single Select DropDown
 

@@ -35,6 +35,7 @@ class ListData extends StatefulWidget {
 class _ListDataState extends State<ListData> {
   List<DataRow> _rows = [];
   List<ChartData> _chartData = [];
+  String total = '';
 
   // static _ListDataState list = _ListDataState();
 
@@ -186,6 +187,12 @@ class _ListDataState extends State<ListData> {
                       child: Container(
                         height: 300,
                         child: SfCircularChart(
+                          annotations: <CircularChartAnnotation>[
+                            CircularChartAnnotation(
+                                widget: Container(
+                              child: Text(total),
+                            ))
+                          ],
                           legend: Legend(
                               isVisible: true,
                               isResponsive: true,
@@ -632,27 +639,29 @@ class _ListDataState extends State<ListData> {
                         // );
                       },
                       child: Text(datum.count)),
-                  IconButton(
-                      onPressed: () async {
-                        String userId =
-                            await SharePref.shred.getString('user_id');
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                // MapScreen(),
-                                MapScreen(
-                                    level1: datum.level1,
-                                    level2: datum.level2,
-                                    level3: datum.level3,
-                                    userid: userId), //
+                  GestureDetector(
+                    onTap: () async {
+                      String userId =
+                          await SharePref.shred.getString('user_id');
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MapScreen(
+                            level1: datum.level1,
+                            level2: datum.level2,
+                            level3: datum.level3,
+                            userid: userId,
                           ),
-                        );
-                      },
-                      icon: const Icon(
-                        Icons.add_location,
-                        color: Colors.blue,
-                      )),
+                        ),
+                      );
+                    },
+                    child: Image.asset(
+                      'assets/google-maps.png', // Replace with the path to your image asset
+                      width: 24.0,
+                      height: 24.0,
+                      // color: Colors.blue, // Optional: to tint the image
+                    ),
+                  )
                 ],
               )), // AWS/ARG
             ],
@@ -663,6 +672,7 @@ class _ListDataState extends State<ListData> {
           return ChartData(datum.name, int.parse(datum.count));
         }).toList();
         logError("name2", _rows.length.toString());
+        total = lc.total.toString();
         // ignore: use_build_context_synchronously
         dialogClose(context);
         setState(() {});
