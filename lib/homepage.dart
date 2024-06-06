@@ -22,6 +22,7 @@ class _MyHomePageState extends State<MyHomePage> {
   TextEditingController _groupIdController = TextEditingController();
   TextEditingController _userIdController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
+  bool _obscureText = true;
 
   @override
   Widget build(BuildContext context) {
@@ -77,8 +78,8 @@ class _MyHomePageState extends State<MyHomePage> {
                         _groupIdController, "Group ID", false, Icons.group),
                     loginData(_userIdController, "User ID", false,
                         Icons.verified_user),
-                    loginData(_passwordController, "Password", true,
-                        Icons.remove_red_eye),
+                    loginData(
+                        _passwordController, "Password", true, Icons.lock),
                     // SizedBox(
                     //   height: 30,
                     // ),
@@ -122,8 +123,23 @@ class _MyHomePageState extends State<MyHomePage> {
       margin: EdgeInsets.only(bottom: 15.0, left: 20.0, right: 20.0),
       child: TextFormField(
         controller: groupIdController,
-        obscureText: obscureText,
+        obscureText: obscureText && groupIdController == _passwordController
+            ? _obscureText
+            : false,
         decoration: InputDecoration(
+          suffixIcon: _passwordController == groupIdController
+              ? IconButton(
+                  onPressed: () {
+                    setState(() {
+                      _obscureText = !_obscureText;
+                    });
+                  },
+                  icon: Icon(
+                    _obscureText ? Icons.visibility_off : Icons.visibility,
+                    color: Colors.blue,
+                  ),
+                )
+              : null,
           labelText: name,
           border: OutlineInputBorder(),
           prefixIcon: Icon(
@@ -163,19 +179,6 @@ class _MyHomePageState extends State<MyHomePage> {
   //   //     _passwordController.text);
   // }
   Future<void> onTapLogin() async {
-    // Show loading indicator
-    // FocusManager.instance.primaryFocus?.unfocus();
-    // showDialog(
-    //   context: context,
-    //   barrierDismissible: false, // Prevent user from dismissing the dialog
-    //   builder: (BuildContext context) {
-    //     return const Center(
-    //       child: CircularProgressIndicator(
-    //         valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-    //       ),
-    //     );
-    //   },
-    // );
     if (await muIsNetworkAvailable()) {
       try {
         dialogLoader(context, 'Loading...');

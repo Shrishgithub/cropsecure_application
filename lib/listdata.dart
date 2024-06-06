@@ -36,6 +36,7 @@ class _ListDataState extends State<ListData> {
   List<DataRow> _rows = [];
   List<ChartData> _chartData = [];
   String total = '';
+  bool _showBlockColumn = true;
 
   // static _ListDataState list = _ListDataState();
 
@@ -119,36 +120,38 @@ class _ListDataState extends State<ListData> {
 
                                 dataRowHeight: 30,
                                 border: TableBorder.all(),
-                                columns: const <DataColumn>[
-                                  DataColumn(
-                                    label: Text(
-                                      'State',
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ),
-                                  DataColumn(
-                                    label: Text(
-                                      'District',
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ),
-                                  DataColumn(
-                                    label: Text(
-                                      'Block',
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ),
-                                  DataColumn(
-                                    label: Text(
-                                      'AWS/ARG',
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ),
-                                ],
+                                columns: _buildDataColumns(),
+
+                                // const <DataColumn>[
+                                //   DataColumn(
+                                //     label: Text(
+                                //       'State',
+                                //       style: TextStyle(
+                                //           fontWeight: FontWeight.bold),
+                                //     ),
+                                //   ),
+                                //   DataColumn(
+                                //     label: Text(
+                                //       'District',
+                                //       style: TextStyle(
+                                //           fontWeight: FontWeight.bold),
+                                //     ),
+                                //   ),
+                                //   DataColumn(
+                                //     label: Text(
+                                //       'Block',
+                                //       style: TextStyle(
+                                //           fontWeight: FontWeight.bold),
+                                //     ),
+                                //   ),
+                                //   DataColumn(
+                                //     label: Text(
+                                //       'AWS/ARG',
+                                //       style: TextStyle(
+                                //           fontWeight: FontWeight.bold),
+                                //     ),
+                                //   ),
+                                // ],
                                 rows: _rows,
                                 // <DataRow>[
                                 //   DataRow(
@@ -525,7 +528,14 @@ class _ListDataState extends State<ListData> {
         for (DatumLocMdl datum in lc.data) {
           state.add(datum.level1.toString());
           district.add(datum.level2.toString());
-          block.add(datum.level3.toString());
+          if (datum.level3 != -1) {
+            block.add(datum.level3.toString());
+            _showBlockColumn = true;
+            _buildDataColumns();
+          } else {
+            _showBlockColumn = false;
+            _buildDataColumns();
+          }
         }
 
         String sqlQuery1 =
@@ -615,10 +625,11 @@ class _ListDataState extends State<ListData> {
                 getDistrictName(datum.level2), //d11
                 textAlign: TextAlign.start,
               )),
-              DataCell(Text(
-                getBlocName(datum.level3), //b11
-                textAlign: TextAlign.start,
-              )), // Block
+              if (_showBlockColumn)
+                DataCell(Text(
+                  getBlocName(datum.level3), //b11
+                  textAlign: TextAlign.start,
+                )), // Block
               DataCell(Row(
                 children: [
                   TextButton(
@@ -687,6 +698,7 @@ class _ListDataState extends State<ListData> {
         return MyDialog();
       },
     );
+    // if(value.)
     await getLocationCount(value); //pass the data after applying dialog filter
     print(value);
   }
@@ -738,6 +750,18 @@ class _ListDataState extends State<ListData> {
     } else {
       print('No District found in the database.');
     }
+  }
+
+  List<DataColumn> _buildDataColumns() {
+    List<DataColumn> columns = [
+      DataColumn(label: Text('State')),
+      DataColumn(label: Text('District')),
+      if (_showBlockColumn) DataColumn(label: Text('Block')),
+      DataColumn(label: Text('AWS/ARG')),
+      // DataColumn(label: Text('Count')),
+    ];
+
+    return columns;
   }
 }
 

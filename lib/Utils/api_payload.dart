@@ -37,7 +37,7 @@ class ApiPayload {
     return {
       "level1_id": level1Id,
       "level2_id": level2Id,
-      "level3_id": level3Id,
+      if (level3Id != -1) "level3_id": level3Id,
       "userId": userId
     };
   }

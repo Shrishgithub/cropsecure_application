@@ -66,7 +66,7 @@ class DatumLocMdl {
         lat: json["lat"],
         lon: json["lon"],
         level2: json["level2"],
-        level3: json["level3"],
+        level3: json["level3"] ?? -1,
         count: json["count"].toString(),
       );
 

@@ -274,8 +274,9 @@ class _MyDialogState extends State<MyDialog> {
         "level2_id": _selectedDistricts
             .map((district) => _districtIdMap[district])
             .toList(),
-        "level3_id":
-            _selectedBlocks.map((block) => _blockIdMap[block]).toList(),
+        if (_selectedDistricts.length < 4)
+          "level3_id":
+              _selectedBlocks.map((block) => _blockIdMap[block]).toList(),
         "userId": userId
       };
 
