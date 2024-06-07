@@ -9,6 +9,7 @@ import 'package:cropsecure_application/Utils/appcontroller.dart';
 import 'package:cropsecure_application/Utils/constant.dart';
 import 'package:cropsecure_application/Utils/sharedpref.dart';
 import 'package:cropsecure_application/Utils/spinkit.dart';
+import 'package:cropsecure_application/chartdetail.dart';
 import 'package:cropsecure_application/homepage.dart';
 import 'package:cropsecure_application/listdata.dart';
 import 'package:flutter/cupertino.dart';
@@ -40,53 +41,7 @@ class _LocationListAppState extends State<LocationListApp> {
   List<DatumLocList> locations = [];
   List<DataRow> _rows = [];
 
-  // final List<Map<String, String>> locations = [
-  //   {
-  //     'State': 'Uttar Pradesh',
-  //     'District': 'Basti',
-  //     'Block': 'Dubaulia',
-  //     'Id': '21538',
-  //     'Name': 'Dubauliya',
-  //     'Latitude': '26.7003651',
-  //     'Longitude': '82.4950377'
-  //   },
-  //   {
-  //     'State': 'Uttar Pradesh',
-  //     'District': 'Basti',
-  //     'Block': 'Harraiya',
-  //     'Id': '21552',
-  //     'Name': 'Harraiya Ghat',
-  //     'Latitude': '26.8056477',
-  //     'Longitude': '82.4619967'
-  //   },
-  //   {
-  //     'State': 'Uttar Pradesh',
-  //     'District': 'Basti',
-  //     'Block': 'Vikram Jot',
-  //     'Id': '65479',
-  //     'Name': 'Malauli Gosai',
-  //     'Latitude': '26.7768775',
-  //     'Longitude': '82.3223084'
-  //   },
-  //   {
-  //     'State': 'Uttar Pradesh',
-  //     'District': 'Basti',
-  //     'Block': 'Vikram Jot',
-  //     'Id': '65480',
-  //     'Name': 'Sandalpura',
-  //     'Latitude': '26.7943806',
-  //     'Longitude': '82.2915299'
-  //   },
-  //   {
-  //     'State': 'Uttar Pradesh',
-  //     'District': 'Basti',
-  //     'Block': 'Harraiya',
-  //     'Id': '65482',
-  //     'Name': 'Amari',
-  //     'Latitude': '26.8266726',
-  //     'Longitude': '82.4130373'
-  //   },
-  // ];
+  // final List<Map<String, String>> locations = [];
 
   @override
   Widget build(BuildContext context) {
@@ -217,16 +172,31 @@ class _LocationListAppState extends State<LocationListApp> {
           }
 
           _rows = locations.map((location) {
-            return DataRow(cells: <DataCell>[
-              DataCell(Text(Stname)), //location.level1.toString()
-              DataCell(Text(d11)), //location.level2.toString()
-              DataCell(Text(
-                  getBlocName(location.level3))), //location.level3.toString()
-              DataCell(Text(location.id.toString())),
-              DataCell(Text(location.name)),
-              DataCell(Text(location.lat)),
-              DataCell(Text(location.lon)),
-            ]);
+            return DataRow(
+                // onLongPress: () {
+                //   Navigator.of(context).push(
+                //       MaterialPageRoute(builder: (context) => ChartDetail()));
+                // },
+                cells: <DataCell>[
+                  DataCell(Text(Stname)), //location.level1.toString()
+                  DataCell(Text(d11)), //location.level2.toString()
+                  DataCell(Text(getBlocName(
+                      location.level3))), //location.level3.toString()
+                  DataCell(Text(location.id.toString())),
+                  DataCell(InkWell(
+                    onTap: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) =>
+                              ChartDetail(location: location.id)));
+                    },
+                    child: Text(
+                      location.name,
+                      style: TextStyle(color: Colors.blue),
+                    ),
+                  )),
+                  DataCell(Text(location.lat)),
+                  DataCell(Text(location.lon)),
+                ]);
           }).toList();
           setState(() {});
         }

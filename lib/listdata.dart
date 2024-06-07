@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:ffi';
 
 import 'package:cropsecure_application/Database/db.dart';
 import 'package:cropsecure_application/Database/sqlquery.dart';
@@ -122,53 +123,7 @@ class _ListDataState extends State<ListData> {
                                 border: TableBorder.all(),
                                 columns: _buildDataColumns(),
 
-                                // const <DataColumn>[
-                                //   DataColumn(
-                                //     label: Text(
-                                //       'State',
-                                //       style: TextStyle(
-                                //           fontWeight: FontWeight.bold),
-                                //     ),
-                                //   ),
-                                //   DataColumn(
-                                //     label: Text(
-                                //       'District',
-                                //       style: TextStyle(
-                                //           fontWeight: FontWeight.bold),
-                                //     ),
-                                //   ),
-                                //   DataColumn(
-                                //     label: Text(
-                                //       'Block',
-                                //       style: TextStyle(
-                                //           fontWeight: FontWeight.bold),
-                                //     ),
-                                //   ),
-                                //   DataColumn(
-                                //     label: Text(
-                                //       'AWS/ARG',
-                                //       style: TextStyle(
-                                //           fontWeight: FontWeight.bold),
-                                //     ),
-                                //   ),
-                                // ],
                                 rows: _rows,
-                                // <DataRow>[
-                                //   DataRow(
-                                //     cells: <DataCell>[
-                                //       DataCell(Text('John')),
-                                //       DataCell(Text('30')),
-                                //       DataCell(Text('Developer')),
-                                //     ],
-                                //   ),
-                                //   DataRow(
-                                //     cells: <DataCell>[
-                                //       DataCell(Text('Emily')),
-                                //       DataCell(Text('28')),
-                                //       DataCell(Text('Designer')),
-                                //     ],
-                                //   ),
-                                // ],
                               ),
                             ),
                           ),
@@ -176,6 +131,9 @@ class _ListDataState extends State<ListData> {
                       ),
                     ],
                   ),
+                ),
+                SizedBox(
+                  height: 2,
                 ),
                 Card(
                   color: const Color.fromARGB(255, 254, 249, 245),
@@ -225,152 +183,6 @@ class _ListDataState extends State<ListData> {
                   ),
                 ),
               ],
-            ),
-            Card(
-              color: const Color.fromARGB(255, 254, 249, 245),
-              elevation: 4,
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: SizedBox(
-                      width: w,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Temprature & Humidity',
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          Row(
-                            children: [
-                              TextButton(
-                                onPressed: () {
-                                  // Add your onPressed logic here
-                                },
-                                child: Icon(Icons.filter_alt_rounded),
-                              ),
-                            ],
-                          )
-                        ],
-                      ),
-                    ),
-                  ),
-                  Row(
-                    children: [
-                      TextButton(
-                        onPressed: () {
-                          // Add your onPressed logic here
-                        },
-                        child: Text('1D'),
-                      ),
-                    ],
-                  ),
-                  Container(
-                    // height: 300,
-                    // padding: EdgeInsets.all(16.0),
-                    child: SfCartesianChart(
-                      legend: Legend(
-                          isVisible: true,
-                          isResponsive: true,
-                          position: LegendPosition.top),
-                      tooltipBehavior: TooltipBehavior(enable: true),
-                      primaryXAxis: CategoryAxis(),
-                      series: <ChartSeries>[
-                        FastLineSeries<ChartData, String>(
-                          name: 'Max Temp',
-                          dataSource: <ChartData>[
-                            ChartData('Jan', 35),
-                            ChartData('Feb', 28),
-                            ChartData('Mar', 34),
-                            ChartData('Apr', 32),
-                            ChartData('May', 40),
-                          ],
-                          xValueMapper: (ChartData data, _) => data.category,
-                          yValueMapper: (ChartData data, _) => data.value,
-                        ),
-                        FastLineSeries<ChartData, String>(
-                          name: 'Min Temp',
-                          dataSource: <ChartData>[
-                            ChartData('Jan', 0),
-                            ChartData('Feb', 10),
-                            ChartData('Mar', 20),
-                            ChartData('Apr', 30),
-                            ChartData('May', 40),
-                          ],
-                          xValueMapper: (ChartData data, _) => data.category,
-                          yValueMapper: (ChartData data, _) => data.value,
-                        ),
-                        FastLineSeries<ChartData, String>(
-                          name: 'Humidity',
-                          dataSource: <ChartData>[
-                            ChartData('Jan', 100),
-                            ChartData('Feb', 0),
-                            ChartData('Mar', 43),
-                            ChartData('Apr', 71),
-                            ChartData('May', 22),
-                          ],
-                          xValueMapper: (ChartData data, _) => data.category,
-                          yValueMapper: (ChartData data, _) => data.value,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Card(
-              color: const Color.fromARGB(255, 254, 249, 245),
-              elevation: 4,
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: SizedBox(
-                      width: w,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Rainfall',
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          Row(
-                            children: [
-                              TextButton(
-                                onPressed: () {
-                                  // Add your onPressed logic here
-                                },
-                                child: Icon(Icons.filter_alt_rounded),
-                              ),
-                            ],
-                          )
-                        ],
-                      ),
-                    ),
-                  ),
-                  Container(
-                    height: 300,
-                    padding: EdgeInsets.all(16.0),
-                    child: SfCartesianChart(
-                      primaryXAxis: CategoryAxis(),
-                      series: <ChartSeries>[
-                        SplineSeries<ChartData, String>(
-                          dataSource: <ChartData>[
-                            ChartData('Jan', 35),
-                            ChartData('Feb', 28),
-                            ChartData('Mar', 34),
-                            ChartData('Apr', 32),
-                            ChartData('May', 40),
-                          ],
-                          xValueMapper: (ChartData data, _) => data.category,
-                          yValueMapper: (ChartData data, _) => data.value,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
             ),
           ],
         ),
@@ -762,6 +574,26 @@ class _ListDataState extends State<ListData> {
     ];
 
     return columns;
+  }
+
+  Widget _selectday(String param, bool checkday) {
+    return Row(
+      children: [
+        TextButton(
+          onPressed: () {
+            // Add your onPressed logic here
+          },
+          child: Text(param),
+        ),
+        if (checkday)
+          Container(
+            width: 1,
+            height: 20,
+            color: Colors.black12,
+            //
+          )
+      ],
+    );
   }
 }
 
