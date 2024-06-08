@@ -187,7 +187,7 @@ class _LocationListAppState extends State<LocationListApp> {
                     onTap: () {
                       Navigator.of(context).push(MaterialPageRoute(
                           builder: (context) =>
-                              ChartDetail(location: location.id)));
+                              ChartDetail(location: location.locationId)));
                     },
                     child: Text(
                       location.name,

@@ -49,7 +49,7 @@ class ApiPayload {
   Map ChartDetail() {
     return {
       "location_id": "6548d6a19e64505b18014b63",
-      "from_date": "2024-06-08",
+      "from_date": "2024-05-08",
       "to_date": "2024-06-08",
       "parameters": [
         {"id": "MinTemp", "name": "Min Temp"},
