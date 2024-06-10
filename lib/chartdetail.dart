@@ -1,278 +1,3 @@
-// import 'dart:async';
-// import 'dart:convert';
-
-// import 'package:cropsecure_application/Model/chartdetailmodel.dart';
-// import 'package:cropsecure_application/Utils/api_payload.dart';
-// import 'package:cropsecure_application/Utils/apiresponse.dart';
-// import 'package:cropsecure_application/Utils/appcontroller.dart';
-// import 'package:cropsecure_application/Utils/constant.dart';
-// import 'package:cropsecure_application/Utils/sharedpref.dart';
-// import 'package:cropsecure_application/homepage.dart';
-// import 'package:flutter/foundation.dart';
-// import 'package:flutter/material.dart';
-// import 'package:syncfusion_flutter_charts/charts.dart';
-
-// class ChartDetail extends StatefulWidget {
-//   final int location;
-//   // const ChartDetail({super.key});
-//   const ChartDetail({required this.location});
-
-//   @override
-//   State<ChartDetail> createState() => _ChartDetailState();
-// }
-
-// class _ChartDetailState extends State<ChartDetail> {
-//   @override
-//   void initState() {
-//     // TODO: implement initState
-//     super.initState();
-//     Future.delayed(Duration(microseconds: 500), getChartData);
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     double w = MediaQuery.of(context).size.width;
-//     double h = MediaQuery.of(context).size.height;
-//     return Scaffold(
-//       appBar: AppBar(
-//         backgroundColor: Colors.green,
-//         leading: GestureDetector(
-//           child: const Icon(
-//             Icons.arrow_back_ios,
-//             color: Colors.white,
-//           ),
-//           onTap: () {
-//             Navigator.of(context).pop();
-//           },
-//         ),
-//         title: const Text(
-//           "Chart Detail",
-//           style: TextStyle(color: Colors.white),
-//         ),
-//       ),
-//       body: ListView(
-//         children: [
-//           Card(
-//             color: const Color.fromARGB(255, 254, 249, 245),
-//             elevation: 4,
-//             child: Column(
-//               children: [
-//                 Padding(
-//                   padding: const EdgeInsets.only(
-//                     top: 8.0,
-//                     left: 8.0,
-//                     right: 8.0,
-//                   ),
-//                   child: SizedBox(
-//                     width: w,
-//                     child: Row(
-//                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                       children: [
-//                         Text(
-//                           'Temprature & Humidity',
-//                           style: TextStyle(fontWeight: FontWeight.bold),
-//                         ),
-//                         Row(
-//                           children: [
-//                             TextButton(
-//                               onPressed: () {
-//                                 // Add your onPressed logic here
-//                               },
-//                               child: Icon(Icons.filter_alt_rounded),
-//                             ),
-//                           ],
-//                         )
-//                       ],
-//                     ),
-//                   ),
-//                 ),
-//                 Row(
-//                   children: [
-//                     _selectday('1D', true),
-//                     _selectday('5D', true),
-//                     _selectday('1M', true),
-//                     _selectday('6M', false),
-//                   ],
-//                 ),
-//                 Container(
-//                   // height: 300,
-//                   // padding: EdgeInsets.all(16.0),
-//                   child: SfCartesianChart(
-//                     // title: ChartTitle(text: 'Temprature & Humidity'),
-//                     legend: Legend(
-//                         isVisible: true,
-//                         isResponsive: true,
-//                         position: LegendPosition.top),
-//                     tooltipBehavior: TooltipBehavior(enable: true),
-//                     primaryXAxis: CategoryAxis(),
-//                     series: <ChartSeries>[
-//                       FastLineSeries<ChartData, String>(
-//                         name: 'Max Temp',
-//                         dataSource: <ChartData>[
-//                           ChartData('Jan', 35),
-//                           ChartData('Feb', 28),
-//                           ChartData('Mar', 34),
-//                           ChartData('Apr', 32),
-//                           ChartData('May', 40),
-//                         ],
-//                         xValueMapper: (ChartData data, _) => data.category,
-//                         yValueMapper: (ChartData data, _) => data.value,
-//                       ),
-//                       FastLineSeries<ChartData, String>(
-//                         name: 'Min Temp',
-//                         dataSource: <ChartData>[
-//                           ChartData('Jan', 0),
-//                           ChartData('Feb', 10),
-//                           ChartData('Mar', 20),
-//                           ChartData('Apr', 30),
-//                           ChartData('May', 40),
-//                         ],
-//                         xValueMapper: (ChartData data, _) => data.category,
-//                         yValueMapper: (ChartData data, _) => data.value,
-//                       ),
-//                       FastLineSeries<ChartData, String>(
-//                         name: 'Humidity',
-//                         dataSource: <ChartData>[
-//                           ChartData('Jan', 100),
-//                           ChartData('Feb', 0),
-//                           ChartData('Mar', 43),
-//                           ChartData('Apr', 71),
-//                           ChartData('May', 22),
-//                         ],
-//                         xValueMapper: (ChartData data, _) => data.category,
-//                         yValueMapper: (ChartData data, _) => data.value,
-//                       ),
-//                     ],
-//                   ),
-//                 ),
-//               ],
-//             ),
-//           ),
-//           Card(
-//             color: const Color.fromARGB(255, 254, 249, 245),
-//             elevation: 4,
-//             child: Column(
-//               children: [
-//                 Padding(
-//                   padding: const EdgeInsets.all(8.0),
-//                   child: SizedBox(
-//                     width: w,
-//                     child: Row(
-//                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                       children: [
-//                         Text(
-//                           'Rainfall',
-//                           style: TextStyle(fontWeight: FontWeight.bold),
-//                         ),
-//                         Row(
-//                           children: [
-//                             TextButton(
-//                               onPressed: () {
-//                                 // Add your onPressed logic here
-//                               },
-//                               child: Icon(Icons.filter_alt_rounded),
-//                             ),
-//                           ],
-//                         )
-//                       ],
-//                     ),
-//                   ),
-//                 ),
-//                 Row(
-//                   children: [
-//                     _selectday('1D', true),
-//                     _selectday('5D', true),
-//                     _selectday('1M', true),
-//                     _selectday('6M', false),
-//                   ],
-//                 ),
-//                 Container(
-//                   height: 300,
-//                   padding: EdgeInsets.all(16.0),
-//                   child: SfCartesianChart(
-//                     primaryXAxis: CategoryAxis(),
-//                     series: <ChartSeries>[
-//                       SplineSeries<ChartData, String>(
-//                         dataSource: <ChartData>[
-//                           ChartData('Jan', 35),
-//                           ChartData('Feb', 28),
-//                           ChartData('Mar', 34),
-//                           ChartData('Apr', 32),
-//                           ChartData('May', 40),
-//                         ],
-//                         xValueMapper: (ChartData data, _) => data.category,
-//                         yValueMapper: (ChartData data, _) => data.value,
-//                       ),
-//                     ],
-//                   ),
-//                 ),
-//               ],
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-
-//   Widget _selectday(String param, bool checkday) {
-//     return Row(
-//       children: [
-//         TextButton(
-//           onPressed: () {
-//             // Add your onPressed logic here
-//           },
-//           child: Text(param),
-//         ),
-//         if (checkday)
-//           Container(
-//             width: 1,
-//             height: 20,
-//             color: Colors.black12,
-//             //
-//           )
-//       ],
-//     );
-//   }
-
-//   Future<void> getChartData() async {
-//     String token = await SharePref.shred.getString('token');
-//     try {
-//       var data = await APIResponse.data.postApiRequest(
-//           Constant.LocationData, ApiPayload.inst.ChartDetail(), {
-//         'Content-Type': 'application/json',
-//         'Accept': 'application/json',
-//         'Authorization': 'Bearer $token',
-//       });
-
-//       if (data != '401' && data != 'No Data') {
-//         data = jsonDecode(data);
-//         logSuccess('Location Data', data.toString());
-//         Chart chart = Chart.fromMap(data);
-//         logError('success', chart.status);
-//         if (chart.status == 'success') {
-//           logError('Success', 'success !!');
-//         } else {
-//           toastMsg('Access Token Expired, Please login again!!');
-//           SharePref.shred.setBool('islogin', false);
-//           Navigator.of(context).pushAndRemoveUntil(
-//               MaterialPageRoute(builder: (context) => MyHomePage()),
-//               (Route route) => false);
-//         }
-//       }
-//     } catch (e) {
-//       print('Error: $e');
-//       logSuccess('Its error', msg)
-//     }
-//   }
-// }
-
-// class ChartData {
-//   final String category;
-//   final int value;
-
-//   ChartData(this.category, this.value);
-// }
-
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
@@ -299,12 +24,19 @@ class _ChartDetailState extends State<ChartDetail> {
   List<ChartData> minMoistureData = [];
   List<ChartData> rainfallData = [];
   List<ChartData> cumulativeRainData = [];
+  List<ChartData> maxWindSpeedData = [];
+  List<ChartData> avarageWindSpeedData = [];
+  List<ChartData> averageAtmPresData = [];
+  List<ChartData> averageSolarRadiationData = [];
   bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration(milliseconds: 500), getChartData);
+    // Future.delayed(Duration(milliseconds: 500), getChartData);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await getChartData();
+    });
   }
 
   @override
@@ -331,8 +63,10 @@ class _ChartDetailState extends State<ChartDetail> {
           ? Center(child: CircularProgressIndicator())
           : ListView(
               children: [
-                buildTemperatureHumidityCard(w),
+                if (maxTempData.isNotEmpty) buildTemperatureHumidityCard(w),
                 buildRainfallCard(w),
+                buildWindspeedCard(w),
+                buildAtmpresCard(w),
               ],
             ),
     );
@@ -359,16 +93,16 @@ class _ChartDetailState extends State<ChartDetail> {
                     'Temperature & Humidity',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  Row(
-                    children: [
-                      TextButton(
-                        onPressed: () {
-                          // Add your onPressed logic here
-                        },
-                        child: Icon(Icons.filter_alt_rounded),
-                      ),
-                    ],
-                  )
+                  // Row(
+                  //   children: [
+                  //     TextButton(
+                  //       onPressed: () {
+                  //         // Add your onPressed logic here
+                  //       },
+                  //       child: Icon(Icons.filter_alt_rounded),
+                  //     ),
+                  //   ],
+                  // )
                 ],
               ),
             ),
@@ -382,8 +116,9 @@ class _ChartDetailState extends State<ChartDetail> {
             ],
           ),
           Container(
+            height: 400,
             child: SfCartesianChart(
-              title: ChartTitle(text: 'Temperature & Humidity Over Time'),
+              // title: ChartTitle(text: 'Temperature & Humidity Over Time'),
               legend: Legend(
                   isVisible: true,
                   isResponsive: true,
@@ -402,28 +137,31 @@ class _ChartDetailState extends State<ChartDetail> {
                 enablePinching: true,
                 enablePanning: true,
                 enableDoubleTapZooming: true,
+                maximumZoomLevel: 3,
+                enableMouseWheelZooming: true,
+                enableSelectionZooming: true,
               ),
               series: <ChartSeries>[
-                FastLineSeries<ChartData, String>(
+                SplineSeries<ChartData, String>(
                   name: 'Max Temp',
                   dataSource: maxTempData,
                   xValueMapper: (ChartData data, _) => data.category,
                   yValueMapper: (ChartData data, _) => data.value,
-                  markerSettings: MarkerSettings(isVisible: true),
+                  // markerSettings: MarkerSettings(isVisible: true),
                 ),
-                FastLineSeries<ChartData, String>(
+                SplineSeries<ChartData, String>(
                   name: 'Min Temp',
                   dataSource: minTempData,
                   xValueMapper: (ChartData data, _) => data.category,
                   yValueMapper: (ChartData data, _) => data.value,
-                  markerSettings: MarkerSettings(isVisible: true),
+                  // markerSettings: MarkerSettings(isVisible: true),
                 ),
-                FastLineSeries<ChartData, String>(
+                SplineSeries<ChartData, String>(
                   name: 'Min Moisture',
                   dataSource: minMoistureData,
                   xValueMapper: (ChartData data, _) => data.category,
                   yValueMapper: (ChartData data, _) => data.value,
-                  markerSettings: MarkerSettings(isVisible: true),
+                  // markerSettings: MarkerSettings(isVisible: true),
                 ),
               ],
             ),
@@ -450,16 +188,16 @@ class _ChartDetailState extends State<ChartDetail> {
                     'Rainfall',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  Row(
-                    children: [
-                      TextButton(
-                        onPressed: () {
-                          // Add your onPressed logic here
-                        },
-                        child: Icon(Icons.filter_alt_rounded),
-                      ),
-                    ],
-                  )
+                  // Row(
+                  //   children: [
+                  //     TextButton(
+                  //       onPressed: () {
+                  //         // Add your onPressed logic here
+                  //       },
+                  //       child: Icon(Icons.filter_alt_rounded),
+                  //     ),
+                  //   ],
+                  // )
                 ],
               ),
             ),
@@ -473,10 +211,10 @@ class _ChartDetailState extends State<ChartDetail> {
             ],
           ),
           Container(
-            height: 300,
+            height: 400,
             padding: EdgeInsets.all(16.0),
             child: SfCartesianChart(
-              title: ChartTitle(text: 'Rainfall Over Time'),
+              // title: ChartTitle(text: 'Rainfall Over Time'),
               legend: Legend(
                   isVisible: true,
                   isResponsive: true,
@@ -494,6 +232,9 @@ class _ChartDetailState extends State<ChartDetail> {
               zoomPanBehavior: ZoomPanBehavior(
                 enablePinching: true,
                 enablePanning: true,
+                maximumZoomLevel: 3,
+                enableMouseWheelZooming: true,
+                enableSelectionZooming: true,
                 enableDoubleTapZooming: true,
               ),
               series: <ChartSeries>[
@@ -502,18 +243,193 @@ class _ChartDetailState extends State<ChartDetail> {
                   dataSource: rainfallData,
                   xValueMapper: (ChartData data, _) => data.category,
                   yValueMapper: (ChartData data, _) => data.value,
-                  markerSettings: MarkerSettings(isVisible: true),
+                  // markerSettings: MarkerSettings(isVisible: true),
                 ),
                 SplineSeries<ChartData, String>(
                   name: 'Cumulative Rain',
                   dataSource: cumulativeRainData,
                   xValueMapper: (ChartData data, _) => data.category,
                   yValueMapper: (ChartData data, _) => data.value,
-                  markerSettings: MarkerSettings(isVisible: true),
+                  // markerSettings: MarkerSettings(isVisible: true),
                 ),
               ],
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildWindspeedCard(double w) {
+    return Card(
+      color: const Color.fromARGB(255, 254, 249, 245),
+      elevation: 4,
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0, top: 8.0, right: 8.0),
+            child: SizedBox(
+              width: w,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'WindSpeed',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  // Row(
+                  //   children: [
+                  //     TextButton(
+                  //       onPressed: () {},
+                  //       child: Icon(Icons.filter_alt_rounded),
+                  //     )
+                  //   ],
+                  // )
+                ],
+              ),
+            ),
+          ),
+          Row(
+            children: [
+              _selectday('1D', true),
+              _selectday('5D', true),
+              _selectday('1M', true),
+              _selectday('6M', false),
+            ],
+          ),
+          Container(
+            height: 400,
+            padding: EdgeInsets.all(16.0),
+            child: SfCartesianChart(
+              // title: ChartTitle(text: 'Wind Speed Data'),
+              legend: Legend(
+                  isVisible: true,
+                  isResponsive: true,
+                  position: LegendPosition.top),
+              tooltipBehavior: TooltipBehavior(enable: true),
+              primaryXAxis: CategoryAxis(
+                labelRotation: -45,
+                majorGridLines: MajorGridLines(width: 0),
+              ),
+              primaryYAxis: NumericAxis(
+                labelFormat: '{value} mps',
+                majorGridLines: MajorGridLines(width: 0.5),
+                axisLine: AxisLine(width: 0),
+              ),
+              zoomPanBehavior: ZoomPanBehavior(
+                enablePinching: true,
+                enablePanning: true,
+                enableDoubleTapZooming: true,
+                maximumZoomLevel: 3,
+                enableMouseWheelZooming: true,
+                enableSelectionZooming: true,
+              ),
+              series: <ChartSeries>[
+                SplineSeries<ChartData, String>(
+                  name: 'MaxWindSpeed',
+                  dataSource: maxWindSpeedData,
+                  xValueMapper: (ChartData data, _) => data.category,
+                  yValueMapper: (ChartData data, _) => data.value,
+                  // markerSettings: MarkerSettings(isVisible: true),
+                ),
+                SplineSeries<ChartData, String>(
+                  name: 'AverageWindSpeed',
+                  dataSource: avarageWindSpeedData,
+                  xValueMapper: (ChartData data, _) => data.category,
+                  yValueMapper: (ChartData data, _) => data.value,
+                  // markerSettings: MarkerSettings(isVisible: true),
+                ),
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget buildAtmpresCard(double w) {
+    return Card(
+      color: const Color.fromARGB(255, 254, 249, 245),
+      elevation: 4,
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0, top: 8.0, right: 8.0),
+            child: SizedBox(
+              width: w,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Atmospheric Pressure',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  // Row(
+                  //   children: [
+                  //     TextButton(
+                  //       onPressed: () {},
+                  //       child: Icon(Icons.filter_alt_rounded),
+                  //     )
+                  //   ],
+                  // )
+                ],
+              ),
+            ),
+          ),
+          Row(
+            children: [
+              _selectday('1D', true),
+              _selectday('5D', true),
+              _selectday('1M', true),
+              _selectday('6M', false),
+            ],
+          ),
+          Container(
+            height: 400,
+            padding: EdgeInsets.all(16.0),
+            child: SfCartesianChart(
+              // title: ChartTitle(text: 'Atmospheric pressure Over Time'),
+              legend: Legend(
+                  isVisible: true,
+                  isResponsive: true,
+                  position: LegendPosition.top),
+              tooltipBehavior: TooltipBehavior(enable: true),
+              primaryXAxis: CategoryAxis(
+                labelRotation: -45,
+                majorGridLines: MajorGridLines(width: 0),
+              ),
+              primaryYAxis: NumericAxis(
+                labelFormat: '{value} atm',
+                majorGridLines: MajorGridLines(width: 0.5),
+                axisLine: AxisLine(width: 0),
+              ),
+              zoomPanBehavior: ZoomPanBehavior(
+                enablePinching: true,
+                enablePanning: true,
+                enableDoubleTapZooming: true,
+                maximumZoomLevel: 3,
+                enableMouseWheelZooming: true,
+                enableSelectionZooming: true,
+                // enableDoubleTapZooming: true,
+              ),
+              series: <ChartSeries>[
+                SplineSeries<ChartData, String>(
+                  name: 'AverageAtmPres',
+                  dataSource: averageAtmPresData,
+                  xValueMapper: (ChartData data, _) => data.category,
+                  yValueMapper: (ChartData data, _) => data.value,
+                  // markerSettings: MarkerSettings(isVisible: true),
+                ),
+                SplineSeries<ChartData, String>(
+                  name: 'AverageSolarRadiation',
+                  dataSource: averageSolarRadiationData,
+                  xValueMapper: (ChartData data, _) => data.category,
+                  yValueMapper: (ChartData data, _) => data.value,
+                  // markerSettings: MarkerSettings(isVisible: true),
+                ),
+              ],
+            ),
+          )
         ],
       ),
     );
@@ -525,6 +441,8 @@ class _ChartDetailState extends State<ChartDetail> {
         TextButton(
           onPressed: () {
             // Add your onPressed logic here
+            getChartData();
+            setState(() {});
           },
           child: Text(param),
         ),
@@ -540,9 +458,10 @@ class _ChartDetailState extends State<ChartDetail> {
 
   Future<void> getChartData() async {
     String token = await SharePref.shred.getString('token');
+    logSuccess('token', token);
     try {
       var data = await APIResponse.data.postApiRequest(Constant.LocationData, {
-        "location_id": widget.location,
+        "location_id": "6548d6a19e64505b18014b63",
         "from_date": "2024-06-08",
         "to_date": "2024-06-08",
         "parameters": [
@@ -580,6 +499,10 @@ class _ChartDetailState extends State<ChartDetail> {
           List<ChartData> moistureMin = [];
           List<ChartData> rainfall = [];
           List<ChartData> cumulativeRainfall = [];
+          List<ChartData> maxWindSpeed = [];
+          List<ChartData> averageWindSpeed = [];
+          List<ChartData> averageAtmPres = [];
+          List<ChartData> averageSolarRadiation = [];
 
           for (var temp in cc.data.tempData) {
             String date =
@@ -588,16 +511,34 @@ class _ChartDetailState extends State<ChartDetail> {
                 date.toString(), double.parse(temp.maxTemp.toString())));
             tempMin.add(ChartData(
                 date.toString(), double.parse(temp.minTemp.toString())));
+
             moistureMin.add(ChartData(
                 date.toString(), double.parse(temp.minMoisture.toString())));
           }
 
           for (var rain in cc.data.rainData) {
-            String date = rain.deviceDate.toIso8601String().split('T')[0];
+            // String date = rain.deviceDate.toIso8601String().split('T')[0];
+            String date = rain.deviceDate.toString();
             rainfall.add(
                 ChartData(date.toString(), double.parse(rain.rain.toString())));
             cumulativeRainfall.add(ChartData(
                 date.toString(), double.parse(rain.cumulativeRain.toString())));
+          }
+
+          for (var wind in cc.data.windspeedData) {
+            String date = wind.deviceDate.toString();
+            maxWindSpeed.add(ChartData(
+                date.toString(), double.parse(wind.maxWindSpeed.toString())));
+            averageWindSpeed.add(ChartData(
+                date.toString(), double.parse(wind.averageWindSpeed)));
+          }
+
+          for (var atm in cc.data.atmPresData) {
+            String date = atm.deviceDate.toString();
+            averageAtmPres.add(
+                ChartData(date.toString(), double.parse(atm.averageAtmPres)));
+            averageSolarRadiation.add(ChartData(
+                date.toString(), double.parse(atm.averageSolarRadiation)));
           }
 
           setState(() {
@@ -606,6 +547,10 @@ class _ChartDetailState extends State<ChartDetail> {
             minMoistureData = moistureMin;
             rainfallData = rainfall;
             cumulativeRainData = cumulativeRainfall;
+            maxWindSpeedData = maxWindSpeed;
+            avarageWindSpeedData = averageWindSpeed;
+            averageAtmPresData = averageAtmPres;
+            averageSolarRadiationData = averageSolarRadiation;
             isLoading = false;
           });
 
@@ -613,6 +558,8 @@ class _ChartDetailState extends State<ChartDetail> {
         } else {
           handleTokenExpired();
         }
+      } else {
+        handleTokenExpired();
       }
     } catch (e) {
       print('Error: $e');

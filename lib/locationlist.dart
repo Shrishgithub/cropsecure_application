@@ -9,6 +9,7 @@ import 'package:cropsecure_application/Utils/appcontroller.dart';
 import 'package:cropsecure_application/Utils/constant.dart';
 import 'package:cropsecure_application/Utils/sharedpref.dart';
 import 'package:cropsecure_application/Utils/spinkit.dart';
+import 'package:cropsecure_application/chartdataset.dart';
 import 'package:cropsecure_application/chartdetail.dart';
 import 'package:cropsecure_application/homepage.dart';
 import 'package:cropsecure_application/listdata.dart';
@@ -185,9 +186,12 @@ class _LocationListAppState extends State<LocationListApp> {
                   DataCell(Text(location.id.toString())),
                   DataCell(InkWell(
                     onTap: () {
+                      // Navigator.of(context).push(MaterialPageRoute(
+                      //     builder: (context) =>
+                      //         ChartDetail(location: location.locationId)));
                       Navigator.of(context).push(MaterialPageRoute(
                           builder: (context) =>
-                              ChartDetail(location: location.locationId)));
+                              ChartDataSet(location: location.locationId)));
                     },
                     child: Text(
                       location.name,

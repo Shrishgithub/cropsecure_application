@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:cropsecure_application/Database/db.dart';
 import 'package:cropsecure_application/Utils/sharedpref.dart';
+import 'package:cropsecure_application/chartdetail.dart';
 import 'package:cropsecure_application/homepage.dart';
 import 'package:cropsecure_application/listdata.dart';
 import 'package:cropsecure_application/main.dart';
@@ -25,6 +26,10 @@ class _SplashScreenState extends State<SplashScreen> {
       } else {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const ListData()),
+          // MaterialPageRoute(
+          //     builder: (context) => const ChartDetail(
+          //           location: '6548d6a19e64505b18014b63',
+          //         )),
         );
         // SharePref.shred.setBool('islogin', false);
       }

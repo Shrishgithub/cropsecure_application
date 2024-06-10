@@ -34,6 +34,8 @@ class Data {
   List<WindspeedDatum> windspeedData;
   List<AtmPresDatum> atmPresData;
   LocData locData;
+  List<dynamic> pmData;
+  List<dynamic> vocNoxData;
 
   Data({
     required this.tempData,
@@ -41,6 +43,8 @@ class Data {
     required this.windspeedData,
     required this.atmPresData,
     required this.locData,
+    required this.pmData,
+    required this.vocNoxData,
   });
 
   factory Data.fromMap(Map<String, dynamic> json) => Data(
@@ -53,6 +57,8 @@ class Data {
         atmPresData: List<AtmPresDatum>.from(
             json["AtmPresData"].map((x) => AtmPresDatum.fromMap(x))),
         locData: LocData.fromMap(json["locData"]),
+        pmData: List<dynamic>.from(json["PmData"].map((x) => x)),
+        vocNoxData: List<dynamic>.from(json["VocNoxData"].map((x) => x)),
       );
 
   Map<String, dynamic> toMap() => {
@@ -62,6 +68,8 @@ class Data {
             List<dynamic>.from(windspeedData.map((x) => x.toMap())),
         "AtmPresData": List<dynamic>.from(atmPresData.map((x) => x.toMap())),
         "locData": locData.toMap(),
+        "PmData": List<dynamic>.from(pmData.map((x) => x)),
+        "VocNoxData": List<dynamic>.from(vocNoxData.map((x) => x)),
       };
 }
 
