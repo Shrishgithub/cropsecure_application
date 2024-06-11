@@ -9,6 +9,29 @@ String dateFormatTodayDate() {
   return formattedDate;
 }
 
+String dateFormatFiveDaysBefore() {
+  DateTime c = DateTime.now().subtract(Duration(days: 5));
+  DateFormat df = DateFormat("yyyy-MM-dd");
+  String formattedDate = df.format(c);
+  return formattedDate;
+}
+
+String dateFormatOneMonthBefore() {
+  DateTime now = DateTime.now();
+  DateTime oneMonthBefore = DateTime(now.year, now.month - 1, now.day);
+  DateFormat df = DateFormat("yyyy-MM-dd");
+  String formattedDate = df.format(oneMonthBefore);
+  return formattedDate;
+}
+
+String dateFormatSixMonthBefore() {
+  DateTime now = DateTime.now();
+  DateTime oneMonthBefore = DateTime(now.year, now.month - 6, now.day);
+  DateFormat df = DateFormat("yyyy-MM-dd");
+  String formattedDate = df.format(oneMonthBefore);
+  return formattedDate;
+}
+
 String dateFormatLog(String date) {
   String formattedDate = '';
   //"2024-01-15T23:59:5";
@@ -115,13 +138,13 @@ String dateTimeFormatDayMonth(String inputDate, String passDateFormat) {
   return formattedDate;
 }
 
-bool dateFormatIsTwoMonthsBack(String dateString) {
-  DateTime inputDate = DateFormat('yyyy-MM-dd').parse(dateString);
+String dateFormatIsFiveMonthsBack() {
+  // DateTime inputDate = DateFormat('yyyy-MM-dd').parse(dateString);
   DateTime currentDate = DateTime.now();
   DateTime twoMonthsBackDate = DateTime(
     currentDate.year,
-    currentDate.month - 2,
+    currentDate.month - 5,
     currentDate.day,
   );
-  return inputDate.isBefore(twoMonthsBackDate);
+  return twoMonthsBackDate.toString();
 }

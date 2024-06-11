@@ -9,7 +9,7 @@ import 'package:flutter/cupertino.dart';
 //   }
 // }
 class Constant {
-  static const Base_URL = "https://aiapi.cropsecure.in/AwsSecusence/";
+  static const Base_URL = "https://api.secusense.in/AwsSecusence/";
   static const LOG_IN = "${Base_URL}login"; // Used
   static const Level1Data =
       "${Base_URL}getLevel1List"; // Used // Set to Database and show name from DB // But shorting remain

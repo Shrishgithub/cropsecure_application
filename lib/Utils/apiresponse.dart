@@ -19,8 +19,8 @@ class APIResponse {
       /*API REQUEST*/
       final response = await http.post(Uri.parse(url),
           body: jsonEncode(payload), headers: header);
-      log('Data Received: Status Code ${response.statusCode}, Content Length:${response.contentLength},body:${response.body},  Reponse: ',
-          name: 'ApiRequest/PostApiRequest');
+      // log('Data Received: Status Code ${response.statusCode}, Content Length:${response.contentLength},body:${response.body},  Reponse: ',
+      //     name: 'ApiRequest/PostApiRequest');
       /*CHECK STATUS CODE*/
       if (response.statusCode == 200) {
         return response.body.toString();

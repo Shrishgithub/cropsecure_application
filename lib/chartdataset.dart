@@ -6,8 +6,8 @@ import 'package:cropsecure_application/Utils/appcontroller.dart';
 import 'package:cropsecure_application/Utils/constant.dart';
 import 'package:cropsecure_application/Utils/dateformat.dart';
 import 'package:cropsecure_application/Utils/sharedpref.dart';
-import 'package:cropsecure_application/rainfalldata.dart';
-import 'package:cropsecure_application/temphumidity.dart';
+import 'package:cropsecure_application/Utils/spinkit.dart';
+// import 'package:cropsecure_application/Utils/notinuse/temphumidity.dart';
 import 'package:cropsecure_application/chartdetail.dart';
 import 'package:cropsecure_application/homepage.dart';
 import 'package:flutter/material.dart';
@@ -22,15 +22,26 @@ class ChartDataSet extends StatefulWidget {
 }
 
 class _ChartDataSetState extends State<ChartDataSet> {
+  // For Temprature
   List<ChartData> maxTempData = [];
   List<ChartData> minTempData = [];
   List<ChartData> minMoistureData = [];
+  // For RainFall
   List<ChartData> rainfallData = [];
   List<ChartData> cumulativeRainData = [];
+  // For WindSpeed
   List<ChartData> maxWindSpeedData = [];
   List<ChartData> avarageWindSpeedData = [];
+  //For Atmospheric Pressure
   List<ChartData> averageAtmPresData = [];
   List<ChartData> averageSolarRadiationData = [];
+  //For PmData
+  List<ChartData> avgPm_2_5Data = [];
+  List<ChartData> avgPm_10_0Data = [];
+  //For VocNoxData
+  List<ChartData> averageVOCData = [];
+  List<ChartData> averageNOXData = [];
+
   bool isLoading = true;
 
   @override
@@ -64,29 +75,58 @@ class _ChartDataSetState extends State<ChartDataSet> {
       ),
       body: ListView(
         children: [
-          Temprature(
+          if (maxTempData.isNotEmpty)
+            DataSetUI(
+              location: widget.location,
               name: 'Temperature & Humidity',
-              dat1: maxTempData,
-              dat2: minTempData,
-              data3: minMoistureData),
-          DataSetUI(
-              name: 'Rainfall', data1: rainfallData, data2: cumulativeRainData),
-          DataSetUI(
-              name: 'WindSpeed',
-              data1: maxWindSpeedData,
-              data2: avarageWindSpeedData),
-          DataSetUI(
-              name: 'Atmospheric Pressure',
-              data1: maxWindSpeedData,
-              data2: avarageWindSpeedData),
-          DataSetUI(
-              name: 'PmData',
-              data1: maxWindSpeedData,
-              data2: avarageWindSpeedData),
-          DataSetUI(
-              name: 'VocNoxData',
-              data1: maxWindSpeedData,
-              data2: avarageWindSpeedData)
+              value: '°C',
+              dataName1: 'Max Temp',
+              data1: maxTempData,
+              dataName2: 'Min Temp',
+              data2: minTempData,
+            ),
+          if (rainfallData.isNotEmpty) //data3: minMoistureData
+            DataSetUI(
+              location: widget.location,
+              name: 'Rainfall',
+              value: 'mm',
+              dataName1: 'Instant Rain',
+              data1: rainfallData,
+              dataName2: 'Cumulative Rain',
+              data2: cumulativeRainData,
+            ),
+          if (maxWindSpeedData.isNotEmpty)
+            DataSetUI(
+                location: widget.location,
+                name: 'WindSpeed',
+                value: 'mps',
+                dataName1: 'MaxWindSpeed',
+                data1: maxWindSpeedData,
+                dataName2: 'AverageWindSpeed',
+                data2: avarageWindSpeedData),
+          if (averageAtmPresData.isNotEmpty)
+            DataSetUI(
+                location: widget.location,
+                name: 'Atmospheric Pressure',
+                value: 'atm',
+                dataName1: 'AverageAtmPres',
+                data1: averageAtmPresData,
+                dataName2: 'AverageSolarRadiation',
+                data2: averageSolarRadiationData),
+          if (avgPm_2_5Data.isNotEmpty)
+            DataSetUI(
+                location: widget.location,
+                name: 'PmData',
+                value: 'atm',
+                dataName1: 'AveragePm',
+                data1: avgPm_2_5Data,
+                dataName2: 'AverageSolarRadiation',
+                data2: avgPm_10_0Data),
+          // DataSetUI(
+          //   location: widget.location,
+          //     name: 'VocNoxData',
+          //     data1: maxWindSpeedData,
+          //     data2: avarageWindSpeedData)
         ],
       ),
     );
@@ -96,8 +136,9 @@ class _ChartDataSetState extends State<ChartDataSet> {
     String token = await SharePref.shred.getString('token');
     logSuccess('token', token);
     try {
+      dialogLoader(context, 'loading...');
       var data = await APIResponse.data.postApiRequest(Constant.LocationData, {
-        "location_id": "6548d6a19e64505b18014b63",
+        "location_id": widget.location,
         "from_date": dateFormatTodayDate(),
         "to_date": dateFormatTodayDate(),
         "parameters": [
@@ -126,7 +167,7 @@ class _ChartDataSetState extends State<ChartDataSet> {
 
       if (data != '401' && data != 'No Data') {
         data = jsonDecode(data);
-        logSuccess('Location Data', data.toString());
+        logSuccess('Location Data', jsonEncode(data));
         Chart cc = Chart.fromMap(data);
 
         if (cc.status == 'success') {
@@ -139,6 +180,8 @@ class _ChartDataSetState extends State<ChartDataSet> {
           List<ChartData> averageWindSpeed = [];
           List<ChartData> averageAtmPres = [];
           List<ChartData> averageSolarRadiation = [];
+          List<ChartData> avgPm_2_5 = [];
+          List<ChartData> avgPm_10_0 = [];
 
           for (var temp in cc.data.tempData) {
             String date =
@@ -165,16 +208,24 @@ class _ChartDataSetState extends State<ChartDataSet> {
             String date = wind.deviceDate.toString();
             maxWindSpeed.add(ChartData(
                 date.toString(), double.parse(wind.maxWindSpeed.toString())));
-            averageWindSpeed.add(ChartData(
-                date.toString(), double.parse(wind.averageWindSpeed)));
+            averageWindSpeed.add(ChartData(date.toString(),
+                double.parse(wind.averageWindSpeed.toString())));
           }
 
           for (var atm in cc.data.atmPresData) {
             String date = atm.deviceDate.toString();
-            averageAtmPres.add(
-                ChartData(date.toString(), double.parse(atm.averageAtmPres)));
-            averageSolarRadiation.add(ChartData(
-                date.toString(), double.parse(atm.averageSolarRadiation)));
+            averageAtmPres.add(ChartData(
+                date.toString(), double.parse(atm.averageAtmPres.toString())));
+            averageSolarRadiation.add(ChartData(date.toString(),
+                double.parse(atm.averageSolarRadiation.toString())));
+          }
+
+          for (var pm in cc.data.pmData) {
+            String date = pm.deviceDate.toString();
+            avgPm_2_5.add(ChartData(
+                date.toString(), double.parse(pm.avgPm25.toString())));
+            avgPm_10_0.add(ChartData(
+                date.toString(), double.parse(pm.avgPm100.toString())));
           }
 
           setState(() {
@@ -187,10 +238,13 @@ class _ChartDataSetState extends State<ChartDataSet> {
             avarageWindSpeedData = averageWindSpeed;
             averageAtmPresData = averageAtmPres;
             averageSolarRadiationData = averageSolarRadiation;
+            avgPm_2_5Data = avgPm_2_5;
+            avgPm_10_0Data = avgPm_10_0;
             isLoading = false;
           });
 
           toastMsg('Data Loaded Successfully');
+          dialogClose(context);
         } else {
           handleTokenExpired();
         }
@@ -199,6 +253,7 @@ class _ChartDataSetState extends State<ChartDataSet> {
       }
     } catch (e) {
       print('Error: $e');
+      dialogClose(context);
     }
   }
 
@@ -209,4 +264,290 @@ class _ChartDataSetState extends State<ChartDataSet> {
         MaterialPageRoute(builder: (context) => MyHomePage()),
         (Route route) => false);
   }
+}
+
+class DataSetUI extends StatefulWidget {
+  final String name;
+  List<ChartData> data1;
+  List<ChartData> data2;
+  String value;
+  String dataName1;
+  String dataName2;
+  String location;
+
+  DataSetUI(
+      {required this.name,
+      required this.data1,
+      required this.data2,
+      required this.value,
+      required this.dataName1,
+      required this.dataName2,
+      required this.location});
+
+  @override
+  State<DataSetUI> createState() => _DataSetUIState();
+}
+
+class _DataSetUIState extends State<DataSetUI> {
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      color: const Color.fromARGB(255, 254, 249, 245),
+      elevation: 4,
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0, top: 8.0, right: 8.0),
+            child: SizedBox(
+              width: double.infinity,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    widget.name,
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  // Row(
+                  //   children: [
+                  //     TextButton(
+                  //       onPressed: () {},
+                  //       child: Icon(Icons.filter_alt_rounded),
+                  //     )
+                  //   ],
+                  // )
+                ],
+              ),
+            ),
+          ),
+          Row(
+            children: [
+              _selectday(widget.name, '1D', true),
+              _selectday(widget.name, '5D', true),
+              _selectday(widget.name, '1M', true),
+              _selectday(widget.name, '6M', false),
+            ],
+          ),
+          Container(
+            height: 400,
+            padding: EdgeInsets.all(16.0),
+            child: SfCartesianChart(
+              // title: ChartTitle(text: 'Wind Speed Data'),
+              legend: Legend(
+                  isVisible: true,
+                  isResponsive: true,
+                  position: LegendPosition.top),
+              tooltipBehavior: TooltipBehavior(enable: true),
+              primaryXAxis: CategoryAxis(
+                labelRotation: -45,
+                majorGridLines: MajorGridLines(width: 0),
+              ),
+              primaryYAxis: NumericAxis(
+                labelFormat: '{value} ' + widget.value,
+                majorGridLines: MajorGridLines(width: 0.5),
+                axisLine: AxisLine(width: 0),
+              ),
+              zoomPanBehavior: ZoomPanBehavior(
+                enablePinching: true,
+                enablePanning: true,
+                enableDoubleTapZooming: true,
+                maximumZoomLevel: 3,
+                enableMouseWheelZooming: true,
+                enableSelectionZooming: true,
+              ),
+              series: <ChartSeries>[
+                SplineSeries<ChartData, String>(
+                  name: widget.dataName1,
+                  dataSource: widget.data1,
+                  xValueMapper: (ChartData data, _) => data.category,
+                  yValueMapper: (ChartData data, _) => data.value,
+                  // markerSettings: MarkerSettings(isVisible: true),
+                ),
+                SplineSeries<ChartData, String>(
+                  name: widget.dataName2,
+                  dataSource: widget.data2,
+                  xValueMapper: (ChartData data, _) => data.category,
+                  yValueMapper: (ChartData data, _) => data.value,
+                  // markerSettings: MarkerSettings(isVisible: true),
+                ),
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _selectday(String param, String date, bool checkday) {
+    return Row(
+      children: [
+        TextButton(
+          onPressed: () {
+            // Add your onPressed logic here
+            // getChartData();
+            // if (param == 'Temperature & Humidity' && date == '5D') {
+            getChartData(widget.location, param, date);
+            // }
+          },
+          child: Text(date),
+        ),
+        if (checkday)
+          Container(
+            width: 1,
+            height: 20,
+            color: Colors.black12,
+          )
+      ],
+    );
+  }
+
+  Future<void> getChartData(String location, String param, String date) async {
+    String fromdate = '';
+    String token = await SharePref.shred.getString('token');
+    logSuccess('token', token);
+    try {
+      if (date == '1D') {
+        fromdate = dateFormatTodayDate();
+      } else if (date == '5D') {
+        fromdate = dateFormatFiveDaysBefore();
+      } else if (date == '1M') {
+        fromdate = dateFormatOneMonthBefore();
+      } else if (date == '6M') {
+        fromdate = dateFormatSixMonthBefore();
+      }
+      dialogLoader(context, 'loading...');
+      var data = await APIResponse.data.postApiRequest(Constant.LocationData, {
+        "location_id": location,
+        "from_date": fromdate,
+        "to_date": dateFormatTodayDate(),
+        "parameters": [
+          {"id": "MinTemp", "name": "Min Temp"},
+          {"id": "MaxTemp", "name": "Max Temp"},
+          {"id": "MinMoisture", "name": "Min Hum"},
+          {"id": "Rain", "name": "Instant Rain"},
+          {"id": "CumulativeRain", "name": "Cumulative Rain"},
+          {"id": "MaxWindSpeed", "name": "Max WindSpeed"},
+          {"id": "AverageWindSpeed", "name": "Average WindSpeed"},
+          {"id": "MaxAtmPres", "name": "Max Atm. Pressure"},
+          {"id": "MinAtmPres", "name": "Min Atm. Pressure"},
+          {"id": "AverageAtmPres", "name": "Average Atm. Pressure"},
+          {"id": "AverageSolarRadiation", "name": "Average Solar Radiation"},
+          {"id": "PM2_5", "name": "Average PM 2.5"},
+          {"id": "PM10_0", "name": "Average PM 10.0"},
+          {"id": "VOC", "name": "Average VOC"},
+          {"id": "NOX", "name": "Average NOX"}
+        ],
+        "userId": "633"
+      }, {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      });
+
+      if (data != '401' && data != 'No Data') {
+        data = jsonDecode(data);
+        logSuccess('Location Data', jsonEncode(data));
+        Chart cc = Chart.fromMap(data);
+
+        if (cc.status == 'success') {
+          List<ChartData> tempMax = [];
+          List<ChartData> tempMin = [];
+          List<ChartData> moistureMin = [];
+          List<ChartData> rainfall = [];
+          List<ChartData> cumulativeRainfall = [];
+          List<ChartData> maxWindSpeed = [];
+          List<ChartData> averageWindSpeed = [];
+          List<ChartData> averageAtmPres = [];
+          List<ChartData> averageSolarRadiation = [];
+
+          if (param == 'Temperature & Humidity') {
+            for (var temp in cc.data.tempData) {
+              String date =
+                  temp.deviceDate.toString(); //toIso8601String().split('T')[0]
+              tempMax.add(ChartData(
+                  date.toString(), double.parse(temp.maxTemp.toString())));
+              tempMin.add(ChartData(
+                  date.toString(), double.parse(temp.minTemp.toString())));
+
+              moistureMin.add(ChartData(
+                  date.toString(), double.parse(temp.minMoisture.toString())));
+            }
+          } else if (param == "Rainfall") {
+            for (var rain in cc.data.rainData) {
+              // String date = rain.deviceDate.toIso8601String().split('T')[0];
+              String date = rain.deviceDate.toString();
+              rainfall.add(ChartData(
+                  date.toString(), double.parse(rain.rain.toString())));
+              cumulativeRainfall.add(ChartData(date.toString(),
+                  double.parse(rain.cumulativeRain.toString())));
+            }
+          } else if (param == 'WindSpeed') {
+            for (var wind in cc.data.windspeedData) {
+              String date = wind.deviceDate.toString();
+              maxWindSpeed.add(ChartData(
+                  date.toString(), double.parse(wind.maxWindSpeed.toString())));
+              averageWindSpeed.add(ChartData(date.toString(),
+                  double.parse(wind.averageWindSpeed.toString())));
+            }
+          } else if (param == 'Atmospheric Pressure') {
+            for (var atm in cc.data.atmPresData) {
+              String date = atm.deviceDate.toString();
+              averageAtmPres.add(ChartData(date.toString(),
+                  double.parse(atm.averageAtmPres.toString())));
+              averageSolarRadiation.add(ChartData(date.toString(),
+                  double.parse(atm.averageSolarRadiation.toString())));
+            }
+          }
+
+          setState(() {
+            switch (widget.name) {
+              case 'Temperature & Humidity':
+                widget.data1 = tempMax;
+                widget.data2 = tempMin;
+                break;
+
+              case 'Rainfall':
+                widget.data1 = rainfall;
+                widget.data2 = cumulativeRainfall;
+                break;
+
+              case 'WindSpeed':
+                widget.data1 = maxWindSpeed;
+                widget.data2 = averageWindSpeed;
+                break;
+
+              case 'Atmospheric Pressure':
+                widget.data1 = averageAtmPres;
+                widget.data2 = averageSolarRadiation;
+                break;
+            }
+          });
+
+          toastMsg('Data Loaded Successfully');
+          dialogClose(context);
+        } else {
+          handleTokenExpired();
+        }
+      } else {
+        handleTokenExpired();
+      }
+    } catch (e) {
+      print('Error: $e');
+      dialogClose(context);
+    }
+  }
+
+  void handleTokenExpired() {
+    toastMsg('Access Token Expired, Please login again!!');
+    SharePref.shred.setBool('islogin', false);
+    Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => MyHomePage()),
+        (Route route) => false);
+  }
+}
+
+class ChartData {
+  final String category;
+  final double value;
+
+  ChartData(this.category, this.value);
 }

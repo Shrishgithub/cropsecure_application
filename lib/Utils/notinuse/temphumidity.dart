@@ -199,6 +199,9 @@ class _TempratureState extends State<Temprature> {
             moistureMin.add(ChartData(
                 date.toString(), double.parse(temp.minMoisture.toString())));
           }
+          logSuccess('Tempmax', tempMax.toString());
+          logSuccess('tempMin', tempMin.toString());
+          logSuccess('moistureMin', moistureMin.toString());
 
           setState(() {
             widget.dat1 = tempMax;

@@ -529,16 +529,16 @@ class _ChartDetailState extends State<ChartDetail> {
             String date = wind.deviceDate.toString();
             maxWindSpeed.add(ChartData(
                 date.toString(), double.parse(wind.maxWindSpeed.toString())));
-            averageWindSpeed.add(ChartData(
-                date.toString(), double.parse(wind.averageWindSpeed)));
+            // averageWindSpeed.add(ChartData(
+            //     date.toString(), double.parse(wind.averageWindSpeed)));
           }
 
           for (var atm in cc.data.atmPresData) {
             String date = atm.deviceDate.toString();
-            averageAtmPres.add(
-                ChartData(date.toString(), double.parse(atm.averageAtmPres)));
-            averageSolarRadiation.add(ChartData(
-                date.toString(), double.parse(atm.averageSolarRadiation)));
+            // averageAtmPres.add(
+            //     ChartData(date.toString(), double.parse(atm.averageAtmPres)));
+            // averageSolarRadiation.add(ChartData(
+            //     date.toString(), double.parse(atm.averageSolarRadiation)));
           }
 
           setState(() {

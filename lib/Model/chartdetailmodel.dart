@@ -34,8 +34,8 @@ class Data {
   List<WindspeedDatum> windspeedData;
   List<AtmPresDatum> atmPresData;
   LocData locData;
-  List<dynamic> pmData;
-  List<dynamic> vocNoxData;
+  List<PmDatum> pmData;
+  List<VocNoxDatum> vocNoxData;
 
   Data({
     required this.tempData,
@@ -54,11 +54,16 @@ class Data {
             json["RainData"].map((x) => RainDatum.fromMap(x))),
         windspeedData: List<WindspeedDatum>.from(
             json["WindspeedData"].map((x) => WindspeedDatum.fromMap(x))),
-        atmPresData: List<AtmPresDatum>.from(
-            json["AtmPresData"].map((x) => AtmPresDatum.fromMap(x))),
+        atmPresData: [],
+        // List<AtmPresDatum>.from(
+        //     json["AtmPresData"].map((x) => AtmPresDatum.fromMap(x))),
         locData: LocData.fromMap(json["locData"]),
-        pmData: List<dynamic>.from(json["PmData"].map((x) => x)),
-        vocNoxData: List<dynamic>.from(json["VocNoxData"].map((x) => x)),
+        // pmData: List<dynamic>.from(json["PmData"].map((x) => x)),
+        // vocNoxData: List<dynamic>.from(json["VocNoxData"].map((x) => x)),
+        pmData:
+            List<PmDatum>.from(json["PmData"].map((x) => PmDatum.fromMap(x))),
+        vocNoxData: List<VocNoxDatum>.from(
+            json["VocNoxData"].map((x) => VocNoxDatum.fromMap(x))),
       );
 
   Map<String, dynamic> toMap() => {
@@ -68,8 +73,10 @@ class Data {
             List<dynamic>.from(windspeedData.map((x) => x.toMap())),
         "AtmPresData": List<dynamic>.from(atmPresData.map((x) => x.toMap())),
         "locData": locData.toMap(),
-        "PmData": List<dynamic>.from(pmData.map((x) => x)),
-        "VocNoxData": List<dynamic>.from(vocNoxData.map((x) => x)),
+        // "PmData": List<dynamic>.from(pmData.map((x) => x)),
+        // "VocNoxData": List<dynamic>.from(vocNoxData.map((x) => x)),
+        "PmData": List<dynamic>.from(pmData.map((x) => x.toMap())),
+        "VocNoxData": List<dynamic>.from(vocNoxData.map((x) => x.toMap())),
       };
 }
 
@@ -139,10 +146,35 @@ class LocData {
       };
 }
 
-class RainDatum {
-  int rain;
+class PmDatum {
+  int avgPm25;
   DateTime deviceDate;
-  int cumulativeRain;
+  int avgPm100;
+
+  PmDatum({
+    required this.avgPm25,
+    required this.deviceDate,
+    required this.avgPm100,
+  });
+
+  factory PmDatum.fromMap(Map<String, dynamic> json) => PmDatum(
+        avgPm25: json["AvgPm_2_5"],
+        deviceDate: DateTime.parse(json["DeviceDate"]),
+        avgPm100: json["AvgPm_10_0"],
+      );
+
+  Map<String, dynamic> toMap() => {
+        "AvgPm_2_5": avgPm25,
+        "DeviceDate":
+            "${deviceDate.year.toString().padLeft(4, '0')}-${deviceDate.month.toString().padLeft(2, '0')}-${deviceDate.day.toString().padLeft(2, '0')}",
+        "AvgPm_10_0": avgPm100,
+      };
+}
+
+class RainDatum {
+  String rain;
+  DateTime deviceDate;
+  String cumulativeRain;
 
   RainDatum({
     required this.rain,
@@ -151,9 +183,9 @@ class RainDatum {
   });
 
   factory RainDatum.fromMap(Map<String, dynamic> json) => RainDatum(
-        rain: json["Rain"],
+        rain: json["Rain"].toString(),
         deviceDate: DateTime.parse(json["DeviceDate"]),
-        cumulativeRain: json["CumulativeRain"],
+        cumulativeRain: json["CumulativeRain"].toString(),
       );
 
   Map<String, dynamic> toMap() => {
@@ -164,9 +196,9 @@ class RainDatum {
 }
 
 class TempDatum {
-  double maxTemp;
-  double minTemp;
-  double minMoisture;
+  String maxTemp;
+  String minTemp;
+  String minMoisture;
   DateTime deviceDate;
 
   TempDatum({
@@ -177,9 +209,9 @@ class TempDatum {
   });
 
   factory TempDatum.fromMap(Map<String, dynamic> json) => TempDatum(
-        maxTemp: json["MaxTemp"]?.toDouble(),
-        minTemp: json["MinTemp"]?.toDouble(),
-        minMoisture: json["MinMoisture"]?.toDouble(),
+        maxTemp: json["MaxTemp"],
+        minTemp: json["MinTemp"],
+        minMoisture: json["MinMoisture"],
         deviceDate: DateTime.parse(json["DeviceDate"]),
       );
 
@@ -188,6 +220,31 @@ class TempDatum {
         "MinTemp": minTemp,
         "MinMoisture": minMoisture,
         "DeviceDate": deviceDate.toIso8601String(),
+      };
+}
+
+class VocNoxDatum {
+  int averageVoc;
+  DateTime deviceDate;
+  int averageNox;
+
+  VocNoxDatum({
+    required this.averageVoc,
+    required this.deviceDate,
+    required this.averageNox,
+  });
+
+  factory VocNoxDatum.fromMap(Map<String, dynamic> json) => VocNoxDatum(
+        averageVoc: json["AverageVOC"],
+        deviceDate: DateTime.parse(json["DeviceDate"]),
+        averageNox: json["AverageNOX"],
+      );
+
+  Map<String, dynamic> toMap() => {
+        "AverageVOC": averageVoc,
+        "DeviceDate":
+            "${deviceDate.year.toString().padLeft(4, '0')}-${deviceDate.month.toString().padLeft(2, '0')}-${deviceDate.day.toString().padLeft(2, '0')}",
+        "AverageNOX": averageNox,
       };
 }
 
