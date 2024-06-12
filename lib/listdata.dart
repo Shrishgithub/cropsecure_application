@@ -117,7 +117,7 @@ class _ListDataState extends State<ListData> {
                               child: DataTable(
                                 columnSpacing: 30,
                                 //Use this to set heading height.
-                                headingRowHeight: 40,
+                                headingRowHeight: 45,
 
                                 dataRowHeight: 30,
                                 border: TableBorder.all(),
@@ -193,7 +193,7 @@ class _ListDataState extends State<ListData> {
   Future<void> getStateData() async {
     List<String> state = [];
     try {
-      dialogLoader(context, 'please wait...');
+      dialogLoader(context, 'fetching state data...');
       String token = await SharePref.shred.getString('token');
       log('$token', name: 'token1');
       var data = await APIResponse.data.postApiRequest(Constant.Level1Data,
@@ -239,6 +239,8 @@ class _ListDataState extends State<ListData> {
       }
     } catch (e) {
       print('Error: $e');
+    } finally {
+      dialogClose(context);
     }
   }
 
@@ -247,6 +249,7 @@ class _ListDataState extends State<ListData> {
   Future<void> getDistrictData(List<String> state) async {
     List<String> district = [];
     try {
+      dialogLoader(context, 'fetching district data...');
       String token = await SharePref.shred.getString('token');
       log('$token', name: 'token');
       var data = await APIResponse.data.postApiRequest(
@@ -280,36 +283,44 @@ class _ListDataState extends State<ListData> {
       }
     } catch (e) {
       print('Error: $e');
+    } finally {
+      dialogClose(context);
     }
   }
 
   Future<void> getBlockData(List<String> district) async {
     String token = await SharePref.shred.getString('token');
+    try {
+      dialogLoader(context, 'fetching block data...');
+      logInfo('token', '$token');
+      var data = await APIResponse.data.postApiRequest(
+          Constant.Level3Data,
+          ApiPayload.inst
+              .level3(await SharePref.shred.getString('user_id'), district),
+          {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': 'Bearer $token',
+          });
 
-    logInfo('token', '$token');
-    var data = await APIResponse.data.postApiRequest(
-        Constant.Level3Data,
-        ApiPayload.inst
-            .level3(await SharePref.shred.getString('user_id'), district),
-        {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'Authorization': 'Bearer $token',
-        });
-
-    if (data != '401' && data != 'NoData') {
-      data = jsonDecode(data);
-      print(data);
-      Level3List l3 = Level3List.fromMap(data);
-      logSuccess('Success', l3.status);
-      if (l3.status == 'success') {
-        await DB.inst.delete(SqlQuery.inst.Level3LocationTable, null, null);
-        await DB.inst.batchInsert(SqlQuery.inst.Level3LocationTable, l3.data);
-        List f3 =
-            await DB.inst.selectTblName(SqlQuery.inst.Level3LocationTable);
-        logSuccess('Block', jsonEncode(f3));
-        _getFromDB();
+      if (data != '401' && data != 'NoData') {
+        data = jsonDecode(data);
+        print(data);
+        Level3List l3 = Level3List.fromMap(data);
+        logSuccess('Success', l3.status);
+        if (l3.status == 'success') {
+          await DB.inst.delete(SqlQuery.inst.Level3LocationTable, null, null);
+          await DB.inst.batchInsert(SqlQuery.inst.Level3LocationTable, l3.data);
+          List f3 =
+              await DB.inst.selectTblName(SqlQuery.inst.Level3LocationTable);
+          logSuccess('Block', jsonEncode(f3));
+          _getFromDB();
+        }
       }
+    } catch (ex) {
+      logInfo('dd', ex.toString());
+    } finally {
+      dialogClose(context);
     }
   }
 
@@ -317,189 +328,195 @@ class _ListDataState extends State<ListData> {
     List<String> state = [];
     List<String> district = [];
     List<String> block = [];
-    String token = await SharePref.shred.getString('token');
-    logInfo('token', '$token');
-    var data = await APIResponse.data.postApiRequest(
-        Constant.LocationCount,
-        // ApiPayload.inst
-        //     .locationCount(await SharePref.shred.getString('user_id')),
-        selectedValues,
-        {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'Authorization': 'Bearer $token',
-        });
+    try {
+      dialogLoader(context, 'fetching location...');
+      String token = await SharePref.shred.getString('token');
+      logInfo('token', '$token');
+      var data = await APIResponse.data.postApiRequest(
+          Constant.LocationCount,
+          // ApiPayload.inst
+          //     .locationCount(await SharePref.shred.getString('user_id')),
+          selectedValues,
+          {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': 'Bearer $token',
+          });
 
-    if (data != '401' && data != 'No Data') {
-      data = jsonDecode(data);
-      logSuccess('name0', data.toString());
-      LocationCount lc = LocationCount.fromMap(data);
-      logSuccess('Location Succes', lc.status);
-      if (lc.status == 'success') {
-        logError("name1", _rows.length.toString());
-        for (DatumLocMdl datum in lc.data) {
-          state.add(datum.level1.toString());
-          district.add(datum.level2.toString());
-          if (datum.level3 != -1) {
-            block.add(datum.level3.toString());
-            _showBlockColumn = true;
-            _buildDataColumns();
-          } else {
-            _showBlockColumn = false;
-            _buildDataColumns();
-          }
-        }
-
-        String sqlQuery1 =
-            'SELECT * FROM ${SqlQuery.inst.Level1LocationTable} WHERE id IN (${List.filled(state.length, '?').join(', ')})';
-        logInfo('Message1', sqlQuery1);
-        logInfo('Message1', state.toString());
-        List vv = await DB.inst.select(sqlQuery1, state);
-        // Extract the names
-        List<String> nameState =
-            vv.map((row) => row['name'].toString()).toList();
-        String name = nameState.join(', ');
-        logInfo('Message1', vv.toString());
-        logInfo('Message1', name);
-
-        String sqlQuery2 =
-            'SELECT * FROM ${SqlQuery.inst.Level2LocationTable} WHERE Level2Id IN (${List.filled(district.length, '?').join(',')})';
-        logInfo('Message2', sqlQuery2);
-        logInfo('Message2', district.toString());
-        List dd = await DB.inst.select(sqlQuery2, district);
-        // Extract the district
-        List<String> nameDistrict =
-            dd.map((row) => row['Level2Name'].toString()).toList();
-        String d11 = nameDistrict.join(', ');
-        logInfo('Meesage1', dd.toString());
-        logInfo('Meesage1', d11);
-
-        String getDistrictName(int level2Id) {
-          for (Map district in dd) {
-            logError('calling', district['Level2Id'].toString());
-            logError('calling', district['Level2Name'].toString());
-            logInfo('name', level2Id.toString());
-            if (int.parse(district['Level2Id']) == level2Id) {
-              logError('calling', 'Internal');
-
-              return district['Level2Name'];
+      if (data != '401' && data != 'No Data') {
+        data = jsonDecode(data);
+        logSuccess('name0', data.toString());
+        LocationCount lc = LocationCount.fromMap(data);
+        logSuccess('Location Succes', lc.status);
+        if (lc.status == 'success') {
+          logError("name1", _rows.length.toString());
+          for (DatumLocMdl datum in lc.data) {
+            state.add(datum.level1.toString());
+            district.add(datum.level2.toString());
+            if (datum.level3 != -1) {
+              block.add(datum.level3.toString());
+              _showBlockColumn = true;
+              _buildDataColumns();
+            } else {
+              _showBlockColumn = false;
+              _buildDataColumns();
             }
           }
-          return '';
-        }
 
-        // String sqlQuery3 =
-        //     'SELECT * FROM ${SqlQuery.inst.Level3LocationTable} WHERE Level3Id IN (${List.filled(block.length, '?').join(',')})';
-        // logInfo('Message3', sqlQuery3);
-        // logInfo('Message3', block.toString());
-        // List bb = await DB.inst.select(sqlQuery3, block);
-        // // Extract the district
-        // List<String> nameBLock =
-        //     bb.map((row) => row['Level3Name'].toString()).toList();
-        // String b11 = nameBLock.join(', ');
-        // logInfo('Message3', bb.toString());
-        // logInfo('Message3', b11);
-        String sqlQuery3 =
-            'SELECT * FROM ${SqlQuery.inst.Level3LocationTable} WHERE Level3Id IN (${List.filled(block.length, '?').join(', ')})';
-        logInfo('BlockQuery', sqlQuery3);
-        logInfo('Block Data', block.toString());
-        List bb = await DB.inst.select(sqlQuery3, block);
-        // Extract the names
-        List<String> nameBlock =
-            bb.map((row) => row['Level3Name'].toString()).toList();
-        String Blname = nameBlock.join(', ');
-        logInfo('Block List', bb.toString());
-        logInfo('Blocks', Blname);
-        String getBlocName(int level3Id) {
-          for (Map block in bb) {
-            logError('calling', block['Level3Id'].toString());
-            logError('calling', block['Level3Name'].toString());
-            logInfo('name', level3Id.toString());
-            if (int.parse(block['Level3Id']) == level3Id) {
-              logError('calling', 'Internal');
+          String sqlQuery1 =
+              'SELECT * FROM ${SqlQuery.inst.Level1LocationTable} WHERE id IN (${List.filled(state.length, '?').join(', ')})';
+          logInfo('Message1', sqlQuery1);
+          logInfo('Message1', state.toString());
+          List vv = await DB.inst.select(sqlQuery1, state);
+          // Extract the names
+          List<String> nameState =
+              vv.map((row) => row['name'].toString()).toList();
+          String name = nameState.join(', ');
+          logInfo('Message1', vv.toString());
+          logInfo('Message1', name);
 
-              return block['Level3Name'];
+          String sqlQuery2 =
+              'SELECT * FROM ${SqlQuery.inst.Level2LocationTable} WHERE Level2Id IN (${List.filled(district.length, '?').join(',')})';
+          logInfo('Message2', sqlQuery2);
+          logInfo('Message2', district.toString());
+          List dd = await DB.inst.select(sqlQuery2, district);
+          // Extract the district
+          List<String> nameDistrict =
+              dd.map((row) => row['Level2Name'].toString()).toList();
+          String d11 = nameDistrict.join(', ');
+          logInfo('Meesage1', dd.toString());
+          logInfo('Meesage1', d11);
+
+          String getDistrictName(int level2Id) {
+            for (Map district in dd) {
+              logError('calling', district['Level2Id'].toString());
+              logError('calling', district['Level2Name'].toString());
+              logInfo('name', level2Id.toString());
+              if (int.parse(district['Level2Id']) == level2Id) {
+                logError('calling', 'Internal');
+
+                return district['Level2Name'];
+              }
             }
+            return '';
           }
-          return '';
-        }
 
-        _rows = lc.data.map((datum) {
-          LatLng location =
-              LatLng(double.parse(datum.lat), double.parse(datum.lon));
-          return DataRow(
-            cells: <DataCell>[
-              DataCell(Text(
-                name,
-                textAlign: TextAlign.center,
-              )), // State
-              DataCell(Text(
-                getDistrictName(datum.level2), //d11
-                textAlign: TextAlign.start,
-              )),
-              if (_showBlockColumn)
+          // String sqlQuery3 =
+          //     'SELECT * FROM ${SqlQuery.inst.Level3LocationTable} WHERE Level3Id IN (${List.filled(block.length, '?').join(',')})';
+          // logInfo('Message3', sqlQuery3);
+          // logInfo('Message3', block.toString());
+          // List bb = await DB.inst.select(sqlQuery3, block);
+          // // Extract the district
+          // List<String> nameBLock =
+          //     bb.map((row) => row['Level3Name'].toString()).toList();
+          // String b11 = nameBLock.join(', ');
+          // logInfo('Message3', bb.toString());
+          // logInfo('Message3', b11);
+          String sqlQuery3 =
+              'SELECT * FROM ${SqlQuery.inst.Level3LocationTable} WHERE Level3Id IN (${List.filled(block.length, '?').join(', ')})';
+          logInfo('BlockQuery', sqlQuery3);
+          logInfo('Block Data', block.toString());
+          List bb = await DB.inst.select(sqlQuery3, block);
+          // Extract the names
+          List<String> nameBlock =
+              bb.map((row) => row['Level3Name'].toString()).toList();
+          String Blname = nameBlock.join(', ');
+          logInfo('Block List', bb.toString());
+          logInfo('Blocks', Blname);
+          String getBlocName(int level3Id) {
+            for (Map block in bb) {
+              logError('calling', block['Level3Id'].toString());
+              logError('calling', block['Level3Name'].toString());
+              logInfo('name', level3Id.toString());
+              if (int.parse(block['Level3Id']) == level3Id) {
+                logError('calling', 'Internal');
+
+                return block['Level3Name'];
+              }
+            }
+            return '';
+          }
+
+          _rows = lc.data.map((datum) {
+            LatLng location =
+                LatLng(double.parse(datum.lat), double.parse(datum.lon));
+            return DataRow(
+              cells: <DataCell>[
                 DataCell(Text(
-                  getBlocName(datum.level3), //b11
+                  name,
+                  textAlign: TextAlign.center,
+                )), // State
+                DataCell(Text(
+                  getDistrictName(datum.level2), //d11
                   textAlign: TextAlign.start,
-                )), // Block
-              DataCell(Row(
-                children: [
-                  TextButton(
-                      onPressed: () async {
+                )),
+                if (_showBlockColumn)
+                  DataCell(Text(
+                    getBlocName(datum.level3), //b11
+                    textAlign: TextAlign.start,
+                  )), // Block
+                DataCell(Row(
+                  children: [
+                    TextButton(
+                        onPressed: () async {
+                          String userId =
+                              await SharePref.shred.getString('user_id');
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => LocationListApp(
+                                  level1: datum.level1,
+                                  level2: datum.level2,
+                                  level3: datum.level3,
+                                  userid: userId)));
+                          // showDialog(
+                          //   context: context,
+                          //   builder: (BuildContext context) {
+                          //     return LocationListApp();
+                          //   },
+                          // );
+                        },
+                        child: Text(datum.count)),
+                    GestureDetector(
+                      onTap: () async {
                         String userId =
                             await SharePref.shred.getString('user_id');
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => LocationListApp(
-                                level1: datum.level1,
-                                level2: datum.level2,
-                                level3: datum.level3,
-                                userid: userId)));
-                        // showDialog(
-                        //   context: context,
-                        //   builder: (BuildContext context) {
-                        //     return LocationListApp();
-                        //   },
-                        // );
-                      },
-                      child: Text(datum.count)),
-                  GestureDetector(
-                    onTap: () async {
-                      String userId =
-                          await SharePref.shred.getString('user_id');
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => MapScreen(
-                            level1: datum.level1,
-                            level2: datum.level2,
-                            level3: datum.level3,
-                            userid: userId,
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => MapScreen(
+                              level1: datum.level1,
+                              level2: datum.level2,
+                              level3: datum.level3,
+                              userid: userId,
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                    child: Image.asset(
-                      'assets/google-maps.png', // Replace with the path to your image asset
-                      width: 24.0,
-                      height: 24.0,
-                      // color: Colors.blue, // Optional: to tint the image
-                    ),
-                  )
-                ],
-              )), // AWS/ARG
-            ],
-          );
-        }).toList();
+                        );
+                      },
+                      child: Image.asset(
+                        'assets/google-maps.png', // Replace with the path to your image asset
+                        width: 24.0,
+                        height: 24.0,
+                        // color: Colors.blue, // Optional: to tint the image
+                      ),
+                    )
+                  ],
+                )), // AWS/ARG
+              ],
+            );
+          }).toList();
 
-        _chartData = lc.data.map((datum) {
-          return ChartData(datum.name, int.parse(datum.count));
-        }).toList();
-        logError("name2", _rows.length.toString());
-        total = lc.total.toString();
-        // ignore: use_build_context_synchronously
-        dialogClose(context);
-        setState(() {});
+          _chartData = lc.data.map((datum) {
+            return ChartData(datum.name, int.parse(datum.count));
+          }).toList();
+          logError("name2", _rows.length.toString());
+          total = lc.total.toString();
+          // ignore: use_build_context_synchronously
+          setState(() {});
+        }
       }
+    } catch (ex) {
+      logError('error', ex.toString());
+    } finally {
+      dialogClose(context);
     }
   }
 
@@ -516,7 +533,6 @@ class _ListDataState extends State<ListData> {
   }
 
   Future<void> _getFromDB() async {
-    // get 1st id Data from DB using State
     String stateQuery = 'SELECT * FROM ${SqlQuery.inst.Level1LocationTable}';
     logSuccess('StateQuery', stateQuery);
 
@@ -528,8 +544,6 @@ class _ListDataState extends State<ListData> {
     if (result.isNotEmpty) {
       String firstStateId = result.first['id'].toString();
       print('First State ID: $firstStateId');
-
-      // get Data from DB of District //
       _getDistrictQuery(firstStateId);
     } else {
       print('No states found in the database.');
@@ -557,7 +571,6 @@ class _ListDataState extends State<ListData> {
         "level2_id": [DistrictIdd],
         "userId": UserId
       };
-
       getLocationCount(selectedValues);
     } else {
       print('No District found in the database.');

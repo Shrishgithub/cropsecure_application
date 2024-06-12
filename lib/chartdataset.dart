@@ -77,14 +77,15 @@ class _ChartDataSetState extends State<ChartDataSet> {
         children: [
           if (maxTempData.isNotEmpty)
             DataSetUI(
-              location: widget.location,
-              name: 'Temperature & Humidity',
-              value: '°C',
-              dataName1: 'Max Temp',
-              data1: maxTempData,
-              dataName2: 'Min Temp',
-              data2: minTempData,
-            ),
+                location: widget.location,
+                name: 'Temperature & Humidity',
+                value: '°C',
+                dataName1: 'Max Temp',
+                data1: maxTempData,
+                dataName2: 'Min Temp',
+                data2: minTempData,
+                dataName3: 'Min Moisture',
+                data3: minMoistureData),
           if (rainfallData.isNotEmpty) //data3: minMoistureData
             DataSetUI(
               location: widget.location,
@@ -94,39 +95,57 @@ class _ChartDataSetState extends State<ChartDataSet> {
               data1: rainfallData,
               dataName2: 'Cumulative Rain',
               data2: cumulativeRainData,
+              dataName3: '',
+              data3: [],
             ),
           if (maxWindSpeedData.isNotEmpty)
             DataSetUI(
-                location: widget.location,
-                name: 'WindSpeed',
-                value: 'mps',
-                dataName1: 'MaxWindSpeed',
-                data1: maxWindSpeedData,
-                dataName2: 'AverageWindSpeed',
-                data2: avarageWindSpeedData),
+              location: widget.location,
+              name: 'WindSpeed',
+              value: 'mps',
+              dataName1: 'MaxWindSpeed',
+              data1: maxWindSpeedData,
+              dataName2: 'AverageWindSpeed',
+              data2: avarageWindSpeedData,
+              dataName3: '',
+              data3: [],
+            ),
           if (averageAtmPresData.isNotEmpty)
             DataSetUI(
-                location: widget.location,
-                name: 'Atmospheric Pressure',
-                value: 'atm',
-                dataName1: 'AverageAtmPres',
-                data1: averageAtmPresData,
-                dataName2: 'AverageSolarRadiation',
-                data2: averageSolarRadiationData),
+              location: widget.location,
+              name: 'Atmospheric Pressure',
+              value: 'atm',
+              dataName1: 'AverageAtmPres',
+              data1: averageAtmPresData,
+              dataName2: 'AverageSolarRadiation',
+              data2: averageSolarRadiationData,
+              dataName3: '',
+              data3: [],
+            ),
           if (avgPm_2_5Data.isNotEmpty)
             DataSetUI(
-                location: widget.location,
-                name: 'PmData',
-                value: 'atm',
-                dataName1: 'AveragePm',
-                data1: avgPm_2_5Data,
-                dataName2: 'AverageSolarRadiation',
-                data2: avgPm_10_0Data),
-          // DataSetUI(
-          //   location: widget.location,
-          //     name: 'VocNoxData',
-          //     data1: maxWindSpeedData,
-          //     data2: avarageWindSpeedData)
+              location: widget.location,
+              name: 'PmData',
+              value: 'pm',
+              dataName1: 'AveragePm',
+              data1: avgPm_2_5Data,
+              dataName2: 'AverageSolarRadiation',
+              data2: avgPm_10_0Data,
+              dataName3: '',
+              data3: [],
+            ),
+          if (averageVOCData.isNotEmpty)
+            DataSetUI(
+              location: widget.location,
+              name: 'VocNoxData',
+              value: 'vocnox',
+              dataName1: 'AverageVoc',
+              data1: averageVOCData,
+              dataName2: 'AverageNox',
+              data2: averageNOXData,
+              dataName3: '',
+              data3: [],
+            ),
         ],
       ),
     );
@@ -182,6 +201,8 @@ class _ChartDataSetState extends State<ChartDataSet> {
           List<ChartData> averageSolarRadiation = [];
           List<ChartData> avgPm_2_5 = [];
           List<ChartData> avgPm_10_0 = [];
+          List<ChartData> averageVOC = [];
+          List<ChartData> averageNOX = [];
 
           for (var temp in cc.data.tempData) {
             String date =
@@ -228,6 +249,14 @@ class _ChartDataSetState extends State<ChartDataSet> {
                 date.toString(), double.parse(pm.avgPm100.toString())));
           }
 
+          for (var vocnox in cc.data.vocNoxData) {
+            String date = vocnox.deviceDate.toString();
+            averageVOCData.add(ChartData(
+                date.toString(), double.parse(vocnox.averageVoc.toString())));
+            averageNOXData.add(ChartData(
+                date.toString(), double.parse(vocnox.averageNox.toString())));
+          }
+
           setState(() {
             maxTempData = tempMax;
             minTempData = tempMin;
@@ -240,6 +269,8 @@ class _ChartDataSetState extends State<ChartDataSet> {
             averageSolarRadiationData = averageSolarRadiation;
             avgPm_2_5Data = avgPm_2_5;
             avgPm_10_0Data = avgPm_10_0;
+            averageVOCData = averageVOC;
+            averageNOXData = averageNOX;
             isLoading = false;
           });
 
@@ -270,9 +301,11 @@ class DataSetUI extends StatefulWidget {
   final String name;
   List<ChartData> data1;
   List<ChartData> data2;
+  List<ChartData> data3;
   String value;
   String dataName1;
   String dataName2;
+  String dataName3;
   String location;
 
   DataSetUI(
@@ -282,13 +315,16 @@ class DataSetUI extends StatefulWidget {
       required this.value,
       required this.dataName1,
       required this.dataName2,
-      required this.location});
+      required this.location,
+      required this.data3,
+      required this.dataName3});
 
   @override
   State<DataSetUI> createState() => _DataSetUIState();
 }
 
 class _DataSetUIState extends State<DataSetUI> {
+  String selectedDuration = '1D';
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -329,7 +365,7 @@ class _DataSetUIState extends State<DataSetUI> {
           ),
           Container(
             height: 400,
-            padding: EdgeInsets.all(16.0),
+            padding: EdgeInsets.only(left: 8, right: 8),
             child: SfCartesianChart(
               // title: ChartTitle(text: 'Wind Speed Data'),
               legend: Legend(
@@ -369,6 +405,14 @@ class _DataSetUIState extends State<DataSetUI> {
                   yValueMapper: (ChartData data, _) => data.value,
                   // markerSettings: MarkerSettings(isVisible: true),
                 ),
+                if (widget.data3.isNotEmpty)
+                  SplineSeries<ChartData, String>(
+                    name: widget.dataName3,
+                    dataSource: widget.data3,
+                    xValueMapper: (ChartData data, _) => data.category,
+                    yValueMapper: (ChartData data, _) => data.value,
+                    // markerSettings: MarkerSettings(isVisible: true),
+                  ),
               ],
             ),
           )
@@ -388,7 +432,10 @@ class _DataSetUIState extends State<DataSetUI> {
             getChartData(widget.location, param, date);
             // }
           },
-          child: Text(date),
+          child: Text(date,
+              style: TextStyle(
+                  color:
+                      selectedDuration == date ? Colors.green : Colors.blue)),
         ),
         if (checkday)
           Container(
@@ -407,6 +454,15 @@ class _DataSetUIState extends State<DataSetUI> {
     try {
       if (date == '1D') {
         fromdate = dateFormatTodayDate();
+        // setState(() {
+        //   Text(
+        //     date,
+        //     style: const TextStyle(
+        //       color: Colors.green,
+        //       fontSize: 20.0,
+        //     ),
+        //   );
+        // });
       } else if (date == '5D') {
         fromdate = dateFormatFiveDaysBefore();
       } else if (date == '1M') {
@@ -444,6 +500,7 @@ class _DataSetUIState extends State<DataSetUI> {
       });
 
       if (data != '401' && data != 'No Data') {
+        selectedDuration = date;
         data = jsonDecode(data);
         logSuccess('Location Data', jsonEncode(data));
         Chart cc = Chart.fromMap(data);
@@ -458,6 +515,10 @@ class _DataSetUIState extends State<DataSetUI> {
           List<ChartData> averageWindSpeed = [];
           List<ChartData> averageAtmPres = [];
           List<ChartData> averageSolarRadiation = [];
+          List<ChartData> avgPm_2_5 = [];
+          List<ChartData> avgPm_10_0 = [];
+          List<ChartData> averageVOC = [];
+          List<ChartData> averageNOX = [];
 
           if (param == 'Temperature & Humidity') {
             for (var temp in cc.data.tempData) {
@@ -496,6 +557,22 @@ class _DataSetUIState extends State<DataSetUI> {
               averageSolarRadiation.add(ChartData(date.toString(),
                   double.parse(atm.averageSolarRadiation.toString())));
             }
+          } else if (param == 'PmData') {
+            for (var pm in cc.data.pmData) {
+              String date = pm.deviceDate.toString();
+              avgPm_2_5.add(ChartData(
+                  date.toString(), double.parse(pm.avgPm25.toString())));
+              avgPm_10_0.add(ChartData(
+                  date.toString(), double.parse(pm.avgPm100.toString())));
+            }
+          } else if (param == 'VocNoxData') {
+            for (var vd in cc.data.vocNoxData) {
+              String date = vd.deviceDate.toString();
+              averageVOC
+                  .add(ChartData(date.toString(), double.parse(vd.averageVoc)));
+              averageNOX
+                  .add(ChartData(date.toString(), double.parse(vd.averageNox)));
+            }
           }
 
           setState(() {
@@ -503,6 +580,7 @@ class _DataSetUIState extends State<DataSetUI> {
               case 'Temperature & Humidity':
                 widget.data1 = tempMax;
                 widget.data2 = tempMin;
+                widget.data3 = moistureMin;
                 break;
 
               case 'Rainfall':
@@ -518,6 +596,16 @@ class _DataSetUIState extends State<DataSetUI> {
               case 'Atmospheric Pressure':
                 widget.data1 = averageAtmPres;
                 widget.data2 = averageSolarRadiation;
+                break;
+
+              case 'PmData':
+                widget.data1 = avgPm_2_5;
+                widget.data2 = avgPm_10_0;
+                break;
+
+              case 'VocNoxData':
+                widget.data1 = averageVOC;
+                widget.data2 = averageNOX;
                 break;
             }
           });

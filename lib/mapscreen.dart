@@ -8,6 +8,7 @@ import 'package:cropsecure_application/Utils/appcontroller.dart';
 import 'package:cropsecure_application/Utils/constant.dart';
 import 'package:cropsecure_application/Utils/sharedpref.dart';
 import 'package:cropsecure_application/Utils/spinkit.dart';
+import 'package:cropsecure_application/homepage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
@@ -78,7 +79,20 @@ class _MapScreenState extends State<MapScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Location Map'),
+        backgroundColor: Colors.green,
+        leading: GestureDetector(
+          child: Icon(
+            Icons.arrow_back_ios,
+            color: Colors.white,
+          ),
+          onTap: () {
+            Navigator.of(context).pop();
+          },
+        ),
+        title: Text(
+          'Location Map',
+          style: TextStyle(color: Colors.white),
+        ),
       ),
       body: GoogleMap(
         onMapCreated: (controller) {
@@ -139,9 +153,14 @@ class _MapScreenState extends State<MapScreen> {
         });
       }
     } else {
-      setState(() {
-        dialogClose(context);
-      });
+      toastMsg('Token Expire, Please Login Again !!');
+      SharePref.shred.setBool('islogin', false);
+      Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => MyHomePage()),
+          (Route route) => false);
+      // setState(() {
+      //   dialogClose(context);
+      // });
     }
   }
 }

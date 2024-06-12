@@ -54,9 +54,8 @@ class Data {
             json["RainData"].map((x) => RainDatum.fromMap(x))),
         windspeedData: List<WindspeedDatum>.from(
             json["WindspeedData"].map((x) => WindspeedDatum.fromMap(x))),
-        atmPresData: [],
-        // List<AtmPresDatum>.from(
-        //     json["AtmPresData"].map((x) => AtmPresDatum.fromMap(x))),
+        atmPresData: List<AtmPresDatum>.from(
+            json["AtmPresData"].map((x) => AtmPresDatum.fromMap(x))),
         locData: LocData.fromMap(json["locData"]),
         // pmData: List<dynamic>.from(json["PmData"].map((x) => x)),
         // vocNoxData: List<dynamic>.from(json["VocNoxData"].map((x) => x)),
@@ -147,9 +146,9 @@ class LocData {
 }
 
 class PmDatum {
-  int avgPm25;
+  String avgPm25;
   DateTime deviceDate;
-  int avgPm100;
+  String avgPm100;
 
   PmDatum({
     required this.avgPm25,
@@ -224,9 +223,9 @@ class TempDatum {
 }
 
 class VocNoxDatum {
-  int averageVoc;
+  String averageVoc;
   DateTime deviceDate;
-  int averageNox;
+  String averageNox;
 
   VocNoxDatum({
     required this.averageVoc,

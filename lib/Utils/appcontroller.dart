@@ -10,6 +10,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 //   AppController controller =
 
 // }
+
 /*Check Internet Connectivity*/
 Future<bool> muIsNetworkAvailable([bool isToast = true]) async {
   try {

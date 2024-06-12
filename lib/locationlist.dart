@@ -55,10 +55,7 @@ class _LocationListAppState extends State<LocationListApp> {
             color: Colors.white,
           ),
           onTap: () {
-            SharePref.shred.setBool('islogin', false);
-            Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(builder: (context) => const ListData()),
-                (Route route) => false);
+            Navigator.of(context).pop();
           },
         ),
         title: const Text(
@@ -207,7 +204,12 @@ class _LocationListAppState extends State<LocationListApp> {
 
         dialogClose(context);
       } else {
-        logError('Location List data', 'Location List Not Found...');
+        toastMsg('Access Token Expired, Please login again!!');
+        SharePref.shred.setBool('islogin', false);
+        Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => MyHomePage()),
+            (Route route) => false);
+        // logError('Location List data', 'Location List Not Found...');
       }
     } catch (e) {
       print('Error: $e');
