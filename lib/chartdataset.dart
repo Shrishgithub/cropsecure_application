@@ -55,6 +55,7 @@ class _ChartDataSetState extends State<ChartDataSet> {
 
   @override
   Widget build(BuildContext context) {
+    double h = MediaQuery.of(context).size.height;
     double w = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
@@ -146,6 +147,13 @@ class _ChartDataSetState extends State<ChartDataSet> {
               dataName3: '',
               data3: [],
             ),
+          if (maxTempData.isEmpty &&
+              rainfallData.isEmpty &&
+              maxWindSpeedData.isEmpty &&
+              averageAtmPresData.isEmpty &&
+              avgPm_2_5Data.isEmpty &&
+              averageVOCData.isEmpty)
+            const NoDataFound(),
         ],
       ),
     );
@@ -205,8 +213,8 @@ class _ChartDataSetState extends State<ChartDataSet> {
           List<ChartData> averageNOX = [];
 
           for (var temp in cc.data.tempData) {
-            String date =
-                temp.deviceDate.toString(); //toIso8601String().split('T')[0]
+            String date = dateFormatLog(
+                temp.deviceDate.toString()); //toIso8601String().split('T')[0]
             tempMax.add(ChartData(
                 date.toString(), double.parse(temp.maxTemp.toString())));
             tempMin.add(ChartData(
@@ -218,7 +226,7 @@ class _ChartDataSetState extends State<ChartDataSet> {
 
           for (var rain in cc.data.rainData) {
             // String date = rain.deviceDate.toIso8601String().split('T')[0];
-            String date = rain.deviceDate.toString();
+            String date = dateFormatLog(rain.deviceDate.toString());
             rainfall.add(
                 ChartData(date.toString(), double.parse(rain.rain.toString())));
             cumulativeRainfall.add(ChartData(
@@ -226,7 +234,7 @@ class _ChartDataSetState extends State<ChartDataSet> {
           }
 
           for (var wind in cc.data.windspeedData) {
-            String date = wind.deviceDate.toString();
+            String date = dateFormatLog(wind.deviceDate.toString());
             maxWindSpeed.add(ChartData(
                 date.toString(), double.parse(wind.maxWindSpeed.toString())));
             averageWindSpeed.add(ChartData(date.toString(),
@@ -234,7 +242,7 @@ class _ChartDataSetState extends State<ChartDataSet> {
           }
 
           for (var atm in cc.data.atmPresData) {
-            String date = atm.deviceDate.toString();
+            String date = dateFormatLog(atm.deviceDate.toString());
             averageAtmPres.add(ChartData(
                 date.toString(), double.parse(atm.averageAtmPres.toString())));
             averageSolarRadiation.add(ChartData(date.toString(),
@@ -242,7 +250,7 @@ class _ChartDataSetState extends State<ChartDataSet> {
           }
 
           for (var pm in cc.data.pmData) {
-            String date = pm.deviceDate.toString();
+            String date = dateFormatLog(pm.deviceDate.toString());
             avgPm_2_5.add(ChartData(
                 date.toString(), double.parse(pm.avgPm25.toString())));
             avgPm_10_0.add(ChartData(
@@ -250,7 +258,7 @@ class _ChartDataSetState extends State<ChartDataSet> {
           }
 
           for (var vocnox in cc.data.vocNoxData) {
-            String date = vocnox.deviceDate.toString();
+            String date = dateFormatLog(vocnox.deviceDate.toString());
             averageVOCData.add(ChartData(
                 date.toString(), double.parse(vocnox.averageVoc.toString())));
             averageNOXData.add(ChartData(
@@ -382,14 +390,14 @@ class _DataSetUIState extends State<DataSetUI> {
                 majorGridLines: MajorGridLines(width: 0.5),
                 axisLine: AxisLine(width: 0),
               ),
-              zoomPanBehavior: ZoomPanBehavior(
-                enablePinching: true,
-                enablePanning: true,
-                enableDoubleTapZooming: true,
-                maximumZoomLevel: 3,
-                enableMouseWheelZooming: true,
-                enableSelectionZooming: true,
-              ),
+              // zoomPanBehavior: ZoomPanBehavior(
+              //   enablePinching: true,
+              //   enablePanning: true,
+              //   enableDoubleTapZooming: true,
+              //   maximumZoomLevel: 3,
+              //   enableMouseWheelZooming: true,
+              //   enableSelectionZooming: true,
+              // ),
               series: <ChartSeries>[
                 SplineSeries<ChartData, String>(
                   name: widget.dataName1,
@@ -522,8 +530,8 @@ class _DataSetUIState extends State<DataSetUI> {
 
           if (param == 'Temperature & Humidity') {
             for (var temp in cc.data.tempData) {
-              String date =
-                  temp.deviceDate.toString(); //toIso8601String().split('T')[0]
+              String date = dateFormatLog(
+                  temp.deviceDate.toString()); //toIso8601String().split('T')[0]
               tempMax.add(ChartData(
                   date.toString(), double.parse(temp.maxTemp.toString())));
               tempMin.add(ChartData(
@@ -535,7 +543,7 @@ class _DataSetUIState extends State<DataSetUI> {
           } else if (param == "Rainfall") {
             for (var rain in cc.data.rainData) {
               // String date = rain.deviceDate.toIso8601String().split('T')[0];
-              String date = rain.deviceDate.toString();
+              String date = dateFormatLog(rain.deviceDate.toString());
               rainfall.add(ChartData(
                   date.toString(), double.parse(rain.rain.toString())));
               cumulativeRainfall.add(ChartData(date.toString(),
@@ -543,7 +551,7 @@ class _DataSetUIState extends State<DataSetUI> {
             }
           } else if (param == 'WindSpeed') {
             for (var wind in cc.data.windspeedData) {
-              String date = wind.deviceDate.toString();
+              String date = dateFormatLog(wind.deviceDate.toString());
               maxWindSpeed.add(ChartData(
                   date.toString(), double.parse(wind.maxWindSpeed.toString())));
               averageWindSpeed.add(ChartData(date.toString(),
@@ -551,7 +559,7 @@ class _DataSetUIState extends State<DataSetUI> {
             }
           } else if (param == 'Atmospheric Pressure') {
             for (var atm in cc.data.atmPresData) {
-              String date = atm.deviceDate.toString();
+              String date = dateFormatLog(atm.deviceDate.toString());
               averageAtmPres.add(ChartData(date.toString(),
                   double.parse(atm.averageAtmPres.toString())));
               averageSolarRadiation.add(ChartData(date.toString(),
@@ -559,7 +567,7 @@ class _DataSetUIState extends State<DataSetUI> {
             }
           } else if (param == 'PmData') {
             for (var pm in cc.data.pmData) {
-              String date = pm.deviceDate.toString();
+              String date = dateFormatLog(pm.deviceDate.toString());
               avgPm_2_5.add(ChartData(
                   date.toString(), double.parse(pm.avgPm25.toString())));
               avgPm_10_0.add(ChartData(
@@ -567,7 +575,7 @@ class _DataSetUIState extends State<DataSetUI> {
             }
           } else if (param == 'VocNoxData') {
             for (var vd in cc.data.vocNoxData) {
-              String date = vd.deviceDate.toString();
+              String date = dateFormatLog(vd.deviceDate.toString());
               averageVOC
                   .add(ChartData(date.toString(), double.parse(vd.averageVoc)));
               averageNOX
@@ -630,6 +638,19 @@ class _DataSetUIState extends State<DataSetUI> {
     Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (context) => MyHomePage()),
         (Route route) => false);
+  }
+}
+
+class NoDataFound extends StatelessWidget {
+  const NoDataFound({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Image.asset(
+      'assets/No Search Results.png',
+      // height: h,
+      width: MediaQuery.of(context).size.width,
+    );
   }
 }
 

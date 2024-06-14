@@ -37,7 +37,7 @@ String dateFormatLog(String date) {
   //"2024-01-15T23:59:5";
   try {
     DateTime dateTime = DateTime.parse(date);
-    formattedDate = DateFormat("yyyy-MM-dd HH:mm:ss").format(dateTime);
+    formattedDate = DateFormat("dd-MM-yyyy HH:mm:ss").format(dateTime);
   } catch (ex) {
     logError('dateFormatLog', '$ex');
   }
