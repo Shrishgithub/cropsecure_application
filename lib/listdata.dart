@@ -151,7 +151,7 @@ class _ListDataState extends State<ListData> {
                           annotations: <CircularChartAnnotation>[
                             CircularChartAnnotation(
                                 widget: Container(
-                              child: Text(total),
+                              child: Text('Total: ' + total),
                             ))
                           ],
                           legend: Legend(

@@ -42,6 +42,7 @@ class _ChartDataSetState extends State<ChartDataSet> {
   List<ChartData> averageVOCData = [];
   List<ChartData> averageNOXData = [];
 
+  String selectedDuration = '1D';
   bool isLoading = true;
 
   @override
@@ -74,88 +75,95 @@ class _ChartDataSetState extends State<ChartDataSet> {
           style: TextStyle(color: Colors.white),
         ),
       ),
-      body: ListView(
-        children: [
-          if (maxTempData.isNotEmpty)
-            DataSetUI(
-                location: widget.location,
-                name: 'Temperature & Humidity',
-                value: '°C',
-                dataName1: 'Max Temp',
-                data1: maxTempData,
-                dataName2: 'Min Temp',
-                data2: minTempData,
-                dataName3: 'Min Moisture',
-                data3: minMoistureData),
-          if (rainfallData.isNotEmpty) //data3: minMoistureData
-            DataSetUI(
-              location: widget.location,
-              name: 'Rainfall',
-              value: 'mm',
-              dataName1: 'Instant Rain',
-              data1: rainfallData,
-              dataName2: 'Cumulative Rain',
-              data2: cumulativeRainData,
-              dataName3: '',
-              data3: [],
-            ),
-          if (maxWindSpeedData.isNotEmpty)
-            DataSetUI(
-              location: widget.location,
-              name: 'WindSpeed',
-              value: 'mps',
-              dataName1: 'MaxWindSpeed',
-              data1: maxWindSpeedData,
-              dataName2: 'AverageWindSpeed',
-              data2: avarageWindSpeedData,
-              dataName3: '',
-              data3: [],
-            ),
-          if (averageAtmPresData.isNotEmpty)
-            DataSetUI(
-              location: widget.location,
-              name: 'Atmospheric Pressure',
-              value: 'atm',
-              dataName1: 'AverageAtmPres',
-              data1: averageAtmPresData,
-              dataName2: 'AverageSolarRadiation',
-              data2: averageSolarRadiationData,
-              dataName3: '',
-              data3: [],
-            ),
-          if (avgPm_2_5Data.isNotEmpty)
-            DataSetUI(
-              location: widget.location,
-              name: 'PmData',
-              value: 'pm',
-              dataName1: 'AveragePm',
-              data1: avgPm_2_5Data,
-              dataName2: 'AverageSolarRadiation',
-              data2: avgPm_10_0Data,
-              dataName3: '',
-              data3: [],
-            ),
-          if (averageVOCData.isNotEmpty)
-            DataSetUI(
-              location: widget.location,
-              name: 'VocNoxData',
-              value: 'vocnox',
-              dataName1: 'AverageVoc',
-              data1: averageVOCData,
-              dataName2: 'AverageNox',
-              data2: averageNOXData,
-              dataName3: '',
-              data3: [],
-            ),
-          if (maxTempData.isEmpty &&
+      body: maxTempData.isEmpty &&
               rainfallData.isEmpty &&
               maxWindSpeedData.isEmpty &&
               averageAtmPresData.isEmpty &&
               avgPm_2_5Data.isEmpty &&
-              averageVOCData.isEmpty)
-            const NoDataFound(),
-        ],
-      ),
+              averageVOCData.isEmpty
+          ? const NoDataFound()
+          : ListView(
+              children: [
+                if (maxTempData.isNotEmpty)
+                  DataSetUI(
+                      location: widget.location,
+                      selectedDur: '1D',
+                      name: 'Temperature & Humidity',
+                      value: '°C',
+                      dataName1: 'Max Temp',
+                      data1: maxTempData,
+                      dataName2: 'Min Temp',
+                      data2: minTempData,
+                      dataName3: 'Min Moisture',
+                      data3: minMoistureData,
+                      onChange: printBack),
+                if (rainfallData.isNotEmpty) //data3: minMoistureData
+                  DataSetUI(
+                      location: widget.location,
+                      selectedDur: '1D',
+                      name: 'Rainfall',
+                      value: 'mm',
+                      dataName1: 'Instant Rain',
+                      data1: rainfallData,
+                      dataName2: 'Cumulative Rain',
+                      data2: cumulativeRainData,
+                      dataName3: '',
+                      data3: [],
+                      onChange: printBack),
+                if (maxWindSpeedData.isNotEmpty)
+                  DataSetUI(
+                      location: widget.location,
+                      selectedDur: selectedDuration,
+                      name: 'WindSpeed',
+                      value: 'mps',
+                      dataName1: 'MaxWindSpeed',
+                      data1: maxWindSpeedData,
+                      dataName2: 'AverageWindSpeed',
+                      data2: avarageWindSpeedData,
+                      dataName3: '',
+                      data3: [],
+                      onChange: printBack),
+                if (averageAtmPresData.isNotEmpty)
+                  DataSetUI(
+                      location: widget.location,
+                      selectedDur: selectedDuration,
+                      name: 'Atmospheric Pressure',
+                      value: 'atm',
+                      dataName1: 'AverageAtmPres',
+                      data1: averageAtmPresData,
+                      dataName2: 'AverageSolarRadiation',
+                      data2: averageSolarRadiationData,
+                      dataName3: '',
+                      data3: [],
+                      onChange: printBack),
+                if (avgPm_2_5Data.isNotEmpty)
+                  DataSetUI(
+                      location: widget.location,
+                      selectedDur: selectedDuration,
+                      name: 'PmData',
+                      value: 'pm',
+                      dataName1: 'AveragePm',
+                      data1: avgPm_2_5Data,
+                      dataName2: 'AverageSolarRadiation',
+                      data2: avgPm_10_0Data,
+                      dataName3: '',
+                      data3: [],
+                      onChange: printBack),
+                if (averageVOCData.isNotEmpty)
+                  DataSetUI(
+                      location: widget.location,
+                      selectedDur: selectedDuration,
+                      name: 'VocNoxData',
+                      value: 'vocnox',
+                      dataName1: 'AverageVoc',
+                      data1: averageVOCData,
+                      dataName2: 'AverageNox',
+                      data2: averageNOXData,
+                      dataName3: '',
+                      data3: [],
+                      onChange: printBack),
+              ],
+            ),
     );
   }
 
@@ -303,6 +311,10 @@ class _ChartDataSetState extends State<ChartDataSet> {
         MaterialPageRoute(builder: (context) => MyHomePage()),
         (Route route) => false);
   }
+
+  void printBack() {
+    logError('testTop', selectedDuration.toString());
+  }
 }
 
 class DataSetUI extends StatefulWidget {
@@ -315,6 +327,8 @@ class DataSetUI extends StatefulWidget {
   String dataName2;
   String dataName3;
   String location;
+  String selectedDur;
+  Function onChange;
 
   DataSetUI(
       {required this.name,
@@ -325,16 +339,20 @@ class DataSetUI extends StatefulWidget {
       required this.dataName2,
       required this.location,
       required this.data3,
-      required this.dataName3});
+      required this.dataName3,
+      required this.selectedDur,
+      required this.onChange});
 
   @override
   State<DataSetUI> createState() => _DataSetUIState();
 }
 
 class _DataSetUIState extends State<DataSetUI> {
-  String selectedDuration = '1D';
+  // String selectedDuration = '1D';
+
   @override
   Widget build(BuildContext context) {
+    logError('test', widget.selectedDur);
     return Card(
       color: const Color.fromARGB(255, 254, 249, 245),
       elevation: 4,
@@ -443,7 +461,7 @@ class _DataSetUIState extends State<DataSetUI> {
           child: Text(date,
               style: TextStyle(
                   color:
-                      selectedDuration == date ? Colors.green : Colors.blue)),
+                      widget.selectedDur == date ? Colors.green : Colors.blue)),
         ),
         if (checkday)
           Container(
@@ -508,7 +526,8 @@ class _DataSetUIState extends State<DataSetUI> {
       });
 
       if (data != '401' && data != 'No Data') {
-        selectedDuration = date;
+        widget.selectedDur = date;
+        widget.onChange();
         data = jsonDecode(data);
         logSuccess('Location Data', jsonEncode(data));
         Chart cc = Chart.fromMap(data);
@@ -641,15 +660,24 @@ class _DataSetUIState extends State<DataSetUI> {
   }
 }
 
-class NoDataFound extends StatelessWidget {
+class NoDataFound extends StatefulWidget {
   const NoDataFound({super.key});
 
   @override
+  State<NoDataFound> createState() => _NoDataFoundState();
+}
+
+class _NoDataFoundState extends State<NoDataFound> {
+  @override
   Widget build(BuildContext context) {
-    return Image.asset(
-      'assets/No Search Results.png',
-      // height: h,
+    return SizedBox(
+      height: MediaQuery.of(context).size.height,
       width: MediaQuery.of(context).size.width,
+      child: Image.asset(
+        'assets/No Search Results.png',
+        // height: 800,
+        fit: BoxFit.cover,
+      ),
     );
   }
 }
