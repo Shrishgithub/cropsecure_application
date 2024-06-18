@@ -82,87 +82,91 @@ class _ChartDataSetState extends State<ChartDataSet> {
               avgPm_2_5Data.isEmpty &&
               averageVOCData.isEmpty
           ? const NoDataFound()
-          : ListView(
-              children: [
-                if (maxTempData.isNotEmpty)
-                  DataSetUI(
-                      location: widget.location,
-                      selectedDur: '1D',
-                      name: 'Temperature & Humidity',
-                      value: '°C',
-                      dataName1: 'Max Temp',
-                      data1: maxTempData,
-                      dataName2: 'Min Temp',
-                      data2: minTempData,
-                      dataName3: 'Min Moisture',
-                      data3: minMoistureData,
-                      onChange: printBack),
-                if (rainfallData.isNotEmpty) //data3: minMoistureData
-                  DataSetUI(
-                      location: widget.location,
-                      selectedDur: '1D',
-                      name: 'Rainfall',
-                      value: 'mm',
-                      dataName1: 'Instant Rain',
-                      data1: rainfallData,
-                      dataName2: 'Cumulative Rain',
-                      data2: cumulativeRainData,
-                      dataName3: '',
-                      data3: [],
-                      onChange: printBack),
-                if (maxWindSpeedData.isNotEmpty)
-                  DataSetUI(
-                      location: widget.location,
-                      selectedDur: selectedDuration,
-                      name: 'WindSpeed',
-                      value: 'mps',
-                      dataName1: 'MaxWindSpeed',
-                      data1: maxWindSpeedData,
-                      dataName2: 'AverageWindSpeed',
-                      data2: avarageWindSpeedData,
-                      dataName3: '',
-                      data3: [],
-                      onChange: printBack),
-                if (averageAtmPresData.isNotEmpty)
-                  DataSetUI(
-                      location: widget.location,
-                      selectedDur: selectedDuration,
-                      name: 'Atmospheric Pressure',
-                      value: 'atm',
-                      dataName1: 'AverageAtmPres',
-                      data1: averageAtmPresData,
-                      dataName2: 'AverageSolarRadiation',
-                      data2: averageSolarRadiationData,
-                      dataName3: '',
-                      data3: [],
-                      onChange: printBack),
-                if (avgPm_2_5Data.isNotEmpty)
-                  DataSetUI(
-                      location: widget.location,
-                      selectedDur: selectedDuration,
-                      name: 'PmData',
-                      value: 'pm',
-                      dataName1: 'AveragePm',
-                      data1: avgPm_2_5Data,
-                      dataName2: 'AverageSolarRadiation',
-                      data2: avgPm_10_0Data,
-                      dataName3: '',
-                      data3: [],
-                      onChange: printBack),
-                if (averageVOCData.isNotEmpty)
-                  DataSetUI(
-                      location: widget.location,
-                      selectedDur: selectedDuration,
-                      name: 'VocNoxData',
-                      value: 'vocnox',
-                      dataName1: 'AverageVoc',
-                      data1: averageVOCData,
-                      dataName2: 'AverageNox',
-                      data2: averageNOXData,
-                      dataName3: '',
-                      data3: [],
-                      onChange: printBack),
-              ],
+          : Scrollbar(
+              thickness: 10,
+              thumbVisibility: true,
+              child: ListView(
+                children: [
+                  if (maxTempData.isNotEmpty)
+                    DataSetUI(
+                        location: widget.location,
+                        selectedDur: '1D',
+                        name: 'Temperature & Humidity',
+                        value: '°C',
+                        dataName1: 'Max Temp',
+                        data1: maxTempData,
+                        dataName2: 'Min Temp',
+                        data2: minTempData,
+                        dataName3: 'Min Moisture',
+                        data3: minMoistureData,
+                        onChange: printBack),
+                  if (rainfallData.isNotEmpty) //data3: minMoistureData
+                    DataSetUI(
+                        location: widget.location,
+                        selectedDur: '1D',
+                        name: 'Rainfall',
+                        value: 'mm',
+                        dataName1: 'Instant Rain',
+                        data1: rainfallData,
+                        dataName2: 'Cumulative Rain',
+                        data2: cumulativeRainData,
+                        dataName3: '',
+                        data3: [],
+                        onChange: printBack),
+                  if (maxWindSpeedData.isNotEmpty)
+                    DataSetUI(
+                        location: widget.location,
+                        selectedDur: selectedDuration,
+                        name: 'WindSpeed',
+                        value: 'mps',
+                        dataName1: 'MaxWindSpeed',
+                        data1: maxWindSpeedData,
+                        dataName2: 'AverageWindSpeed',
+                        data2: avarageWindSpeedData,
+                        dataName3: '',
+                        data3: [],
+                        onChange: printBack),
+                  if (averageAtmPresData.isNotEmpty)
+                    DataSetUI(
+                        location: widget.location,
+                        selectedDur: selectedDuration,
+                        name: 'Atmospheric Pressure',
+                        value: 'atm',
+                        dataName1: 'AverageAtmPres',
+                        data1: averageAtmPresData,
+                        dataName2: 'AverageSolarRadiation',
+                        data2: averageSolarRadiationData,
+                        dataName3: '',
+                        data3: [],
+                        onChange: printBack),
+                  if (avgPm_2_5Data.isNotEmpty)
+                    DataSetUI(
+                        location: widget.location,
+                        selectedDur: selectedDuration,
+                        name: 'PmData',
+                        value: 'pm',
+                        dataName1: 'AveragePm',
+                        data1: avgPm_2_5Data,
+                        dataName2: 'AverageSolarRadiation',
+                        data2: avgPm_10_0Data,
+                        dataName3: '',
+                        data3: [],
+                        onChange: printBack),
+                  if (averageVOCData.isNotEmpty)
+                    DataSetUI(
+                        location: widget.location,
+                        selectedDur: selectedDuration,
+                        name: 'VocNoxData',
+                        value: 'vocnox',
+                        dataName1: 'AverageVoc',
+                        data1: averageVOCData,
+                        dataName2: 'AverageNox',
+                        data2: averageNOXData,
+                        dataName3: '',
+                        data3: [],
+                        onChange: printBack),
+                ],
+              ),
             ),
     );
   }
@@ -407,6 +411,12 @@ class _DataSetUIState extends State<DataSetUI> {
                 labelFormat: '{value} ' + widget.value,
                 majorGridLines: MajorGridLines(width: 0.5),
                 axisLine: AxisLine(width: 0),
+              ),
+              zoomPanBehavior: ZoomPanBehavior(
+                // enableDoubleTapZooming: true,
+
+                enablePinching: true,
+                // enablePanning: true,
               ),
               // zoomPanBehavior: ZoomPanBehavior(
               //   enablePinching: true,

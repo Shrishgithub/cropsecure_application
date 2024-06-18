@@ -100,9 +100,10 @@ class _MapScreenState extends State<MapScreen> {
         },
         initialCameraPosition: CameraPosition(
           target: initialPosition,
-          zoom: 4,
+          zoom: 10.0,
         ),
         markers: _createMarkers(),
+        minMaxZoomPreference: MinMaxZoomPreference(5, 10),
       ),
     );
   }

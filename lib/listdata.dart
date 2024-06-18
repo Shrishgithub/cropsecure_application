@@ -118,8 +118,7 @@ class _ListDataState extends State<ListData> {
                                 columnSpacing: 30,
                                 //Use this to set heading height.
                                 headingRowHeight: 45,
-
-                                dataRowHeight: 30,
+                                dataRowHeight: 32,
                                 border: TableBorder.all(),
                                 columns: _buildDataColumns(),
 
@@ -148,6 +147,7 @@ class _ListDataState extends State<ListData> {
                       child: Container(
                         height: 300,
                         child: SfCircularChart(
+                          // title: ChartTitle(text: 'Location Chart'),
                           annotations: <CircularChartAnnotation>[
                             CircularChartAnnotation(
                                 widget: Container(
@@ -505,13 +505,23 @@ class _ListDataState extends State<ListData> {
           }).toList();
 
           _chartData = lc.data.map((datum) {
-            return ChartData(datum.name, int.parse(datum.count));
+            if (block.isEmpty) {
+              return ChartData(
+                  getDistrictName(datum.level2), int.parse(datum.count));
+            }
+            return ChartData(getBlocName(datum.level3), int.parse(datum.count));
           }).toList();
           logError("name2", _rows.length.toString());
           total = lc.total.toString();
           // ignore: use_build_context_synchronously
           setState(() {});
         }
+      } else {
+        toastMsg('Access Token Expired, Please login again!!');
+        SharePref.shred.setBool('islogin', false);
+        Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => MyHomePage()),
+            (Route route) => false);
       }
     } catch (ex) {
       logError('error', ex.toString());
@@ -589,25 +599,25 @@ class _ListDataState extends State<ListData> {
     return columns;
   }
 
-  Widget _selectday(String param, bool checkday) {
-    return Row(
-      children: [
-        TextButton(
-          onPressed: () {
-            // Add your onPressed logic here
-          },
-          child: Text(param),
-        ),
-        if (checkday)
-          Container(
-            width: 1,
-            height: 20,
-            color: Colors.black12,
-            //
-          )
-      ],
-    );
-  }
+  // Widget _selectday(String param, bool checkday) {
+  //   return Row(
+  //     children: [
+  //       TextButton(
+  //         onPressed: () {
+  //           // Add your onPressed logic here
+  //         },
+  //         child: Text(param),
+  //       ),
+  //       if (checkday)
+  //         Container(
+  //           width: 1,
+  //           height: 20,
+  //           color: Colors.black12,
+  //           //
+  //         )
+  //     ],
+  //   );
+  // }
 }
 
 class ChartData {

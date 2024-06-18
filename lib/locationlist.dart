@@ -10,9 +10,7 @@ import 'package:cropsecure_application/Utils/constant.dart';
 import 'package:cropsecure_application/Utils/sharedpref.dart';
 import 'package:cropsecure_application/Utils/spinkit.dart';
 import 'package:cropsecure_application/chartdataset.dart';
-import 'package:cropsecure_application/chartdetail.dart';
 import 'package:cropsecure_application/homepage.dart';
-import 'package:cropsecure_application/listdata.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -34,15 +32,31 @@ class LocationListApp extends StatefulWidget {
 class _LocationListAppState extends State<LocationListApp> {
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     Future.delayed(Duration(microseconds: 500), getLocationList);
   }
 
   List<DatumLocList> locations = [];
   List<DataRow> _rows = [];
+  List<DataRow> _filteredRows = [];
 
-  // final List<Map<String, String>> locations = [];
+  TextEditingController searchController = TextEditingController();
+
+  void _filterLocations(String query) {
+    if (query.isEmpty) {
+      _filteredRows = _rows;
+    } else {
+      _filteredRows = _rows.where((row) {
+        return row.cells.any((cell) {
+          return cell.child
+              .toString()
+              .toLowerCase()
+              .contains(query.toLowerCase());
+        });
+      }).toList();
+    }
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,20 +76,53 @@ class _LocationListAppState extends State<LocationListApp> {
           "Location List",
           style: TextStyle(color: Colors.white),
         ),
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(48.0),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              controller: searchController,
+              decoration: InputDecoration(
+                hintText: 'Search location...',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                filled: true,
+                fillColor: Colors.white,
+                contentPadding:
+                    EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
+                prefixIcon: Icon(Icons.search, color: Colors.grey),
+              ),
+              onChanged: (query) {
+                _filterLocations(query);
+              },
+            ),
+          ),
+        ),
       ),
       body: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: SingleChildScrollView(
           scrollDirection: Axis.vertical,
-          child: DataTable(columns: const [
-            DataColumn(label: Text('State')),
-            DataColumn(label: Text('District')),
-            DataColumn(label: Text('Block')),
-            DataColumn(label: Text('Id')),
-            DataColumn(label: Text('Name')),
-            DataColumn(label: Text('Latitude')),
-            DataColumn(label: Text('Longitude')),
-          ], rows: _rows),
+          child: DataTable(
+              columnSpacing: 30,
+              headingRowHeight: 45,
+              dataRowHeight: 30,
+              border: TableBorder.symmetric(
+                  inside: BorderSide(width: 1, color: Colors.grey),
+                  outside: BorderSide(width: 1)),
+              columns: const [
+                DataColumn(label: Text('S No')),
+                DataColumn(label: Text('State')),
+                DataColumn(label: Text('District')),
+                DataColumn(label: Text('Block')),
+                DataColumn(label: Text('Id')),
+                DataColumn(label: Text('Name')),
+                DataColumn(label: Text('Latitude')),
+                DataColumn(label: Text('Longitude')),
+              ],
+              rows: _filteredRows),
         ),
       ),
     );
@@ -116,6 +163,7 @@ class _LocationListAppState extends State<LocationListApp> {
             district.add(datum.level2.toString());
             block.add(datum.level3.toString());
           }
+
           logSuccess('state', state.toString());
           logSuccess('district', district.toString());
           logSuccess('block', block.toString());
@@ -125,7 +173,6 @@ class _LocationListAppState extends State<LocationListApp> {
           logInfo('StateQuery', sqlQuery1);
           logInfo('State Data', state.toString());
           List vv = await DB.inst.select(sqlQuery1, state);
-          // Extract the names
           List<String> nameState =
               vv.map((row) => row['name'].toString()).toList();
           String Stname = nameState.join(', ');
@@ -137,7 +184,6 @@ class _LocationListAppState extends State<LocationListApp> {
           logInfo('Message2', sqlQuery2);
           logInfo('Message2', district.toString());
           List dd = await DB.inst.select(sqlQuery2, district);
-          // Extract the district
           List<String> nameDistrict =
               dd.map((row) => row['Level2Name'].toString()).toList();
           String d11 = nameDistrict.join(', ');
@@ -149,7 +195,6 @@ class _LocationListAppState extends State<LocationListApp> {
           logInfo('BlockQuery', sqlQuery3);
           logInfo('Block Data', block.toString());
           List bb = await DB.inst.select(sqlQuery3, block);
-          // Extract the names
           List<String> nameBlock =
               bb.map((row) => row['Level3Name'].toString()).toList();
           String Blname = nameBlock.join(', ');
@@ -162,7 +207,6 @@ class _LocationListAppState extends State<LocationListApp> {
               logInfo('name', level3Id.toString());
               if (int.parse(block['Level3Id']) == level3Id) {
                 logError('calling', 'Internal');
-
                 return block['Level3Name'];
               }
             }
@@ -170,35 +214,28 @@ class _LocationListAppState extends State<LocationListApp> {
           }
 
           _rows = locations.map((location) {
-            return DataRow(
-                // onLongPress: () {
-                //   Navigator.of(context).push(
-                //       MaterialPageRoute(builder: (context) => ChartDetail()));
-                // },
-                cells: <DataCell>[
-                  DataCell(Text(Stname)), //location.level1.toString()
-                  DataCell(Text(d11)), //location.level2.toString()
-                  DataCell(Text(getBlocName(
-                      location.level3))), //location.level3.toString()
-                  DataCell(Text(location.id.toString())),
-                  DataCell(InkWell(
-                    onTap: () {
-                      // Navigator.of(context).push(MaterialPageRoute(
-                      //     builder: (context) =>
-                      //         ChartDetail(location: location.locationId)));
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) =>
-                              ChartDataSet(location: location.locationId)));
-                    },
-                    child: Text(
-                      location.name,
-                      style: TextStyle(color: Colors.blue),
-                    ),
-                  )),
-                  DataCell(Text(location.lat)),
-                  DataCell(Text(location.lon)),
-                ]);
+            return DataRow(cells: <DataCell>[
+              DataCell(Text((locations.indexOf(location) + 1).toString())),
+              DataCell(Text(Stname)),
+              DataCell(Text(d11)),
+              DataCell(Text(getBlocName(location.level3))),
+              DataCell(Text(location.id.toString())),
+              DataCell(InkWell(
+                onTap: () {
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) =>
+                          ChartDataSet(location: location.locationId)));
+                },
+                child: Text(
+                  location.name,
+                  style: TextStyle(color: Colors.blue),
+                ),
+              )),
+              DataCell(Text(location.lat)),
+              DataCell(Text(location.lon)),
+            ]);
           }).toList();
+          _filteredRows = _rows;
           setState(() {});
         }
 
@@ -209,7 +246,6 @@ class _LocationListAppState extends State<LocationListApp> {
         Navigator.of(context).pushAndRemoveUntil(
             MaterialPageRoute(builder: (context) => MyHomePage()),
             (Route route) => false);
-        // logError('Location List data', 'Location List Not Found...');
       }
     } catch (e) {
       print('Error: $e');
