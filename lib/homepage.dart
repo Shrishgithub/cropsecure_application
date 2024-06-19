@@ -209,11 +209,10 @@ class _MyHomePageState extends State<MyHomePage> {
             print('$token');
             SharePref.shred
                 .setString('user_id', data['loginRes'][0]['user_id']);
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => ListData()),
-            );
-            // dialogClose(context);
+
+            Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (context) => ListData()),
+                (Route route) => false);
           } else {
             dialogClose(context);
             toastMsg('Invalid Credential, Please try again!!');

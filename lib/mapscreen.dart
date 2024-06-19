@@ -97,6 +97,7 @@ class _MapScreenState extends State<MapScreen> {
       body: GoogleMap(
         onMapCreated: (controller) {
           _controller = controller;
+          _updateCameraBounds(); // Update camera bounds when the map is created
         },
         initialCameraPosition: CameraPosition(
           target: initialPosition,
@@ -137,12 +138,7 @@ class _MapScreenState extends State<MapScreen> {
               locations[0].lon.isNotEmpty) {
             initialPosition = LatLng(
                 double.parse(locations[0].lat), double.parse(locations[0].lon));
-
-            LatLngBounds bounds = _calculateBounds();
-
-            // _controller?.animateCamera(CameraUpdate.newLatLng(initialPosition));
-            _controller
-                ?.animateCamera(CameraUpdate.newLatLngBounds(bounds, 200));
+            _updateCameraBounds(); // Update camera bounds after fetching locations
           }
           dialogClose(context);
         });
@@ -162,6 +158,13 @@ class _MapScreenState extends State<MapScreen> {
       // setState(() {
       //   dialogClose(context);
       // });
+    }
+  }
+
+  void _updateCameraBounds() {
+    if (_controller != null && locations.isNotEmpty) {
+      LatLngBounds bounds = _calculateBounds();
+      _controller?.animateCamera(CameraUpdate.newLatLngBounds(bounds, 50));
     }
   }
 }

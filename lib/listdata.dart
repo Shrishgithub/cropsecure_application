@@ -56,21 +56,24 @@ class _ListDataState extends State<ListData> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.green,
-        leading: GestureDetector(
-          child: Icon(
-            Icons.arrow_back_ios,
-            color: Colors.white,
+        // leading: GestureDetector(
+        //   child: Icon(
+        //     Icons.arrow_back_ios,
+        //     color: Colors.white,
+        //   ),
+        //   onTap: () {
+        //     SharePref.shred.setBool('islogin', false);
+        //     Navigator.of(context).pushAndRemoveUntil(
+        //         MaterialPageRoute(builder: (context) => MyHomePage()),
+        //         (Route route) => false);
+        //   },
+        // ),
+        title: Padding(
+          padding: const EdgeInsets.only(left: 10),
+          child: const Text(
+            "Dashboard",
+            style: TextStyle(color: Colors.white),
           ),
-          onTap: () {
-            SharePref.shred.setBool('islogin', false);
-            Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(builder: (context) => MyHomePage()),
-                (Route route) => false);
-          },
-        ),
-        title: const Text(
-          "Dashboard",
-          style: TextStyle(color: Colors.white),
         ),
       ),
       body: SingleChildScrollView(
