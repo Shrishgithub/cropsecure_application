@@ -53,141 +53,176 @@ class _ListDataState extends State<ListData> {
   Widget build(BuildContext context) {
     double w = MediaQuery.of(context).size.width;
     double h = MediaQuery.of(context).size.height;
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.green,
-        // leading: GestureDetector(
-        //   child: Icon(
-        //     Icons.arrow_back_ios,
-        //     color: Colors.white,
-        //   ),
-        //   onTap: () {
-        //     SharePref.shred.setBool('islogin', false);
-        //     Navigator.of(context).pushAndRemoveUntil(
-        //         MaterialPageRoute(builder: (context) => MyHomePage()),
-        //         (Route route) => false);
-        //   },
-        // ),
-        title: Padding(
-          padding: const EdgeInsets.only(left: 10),
-          child: const Text(
-            "Dashboard",
+    return WillPopScope(
+      onWillPop: () async {
+        showDialog(
+            context: context,
+            builder: (ctx) => AlertDialog(
+                  title: const Text('SecuSense'),
+                  content: const Text('Are you sure you want to Exit !!'),
+                  actions: <Widget>[
+                    TextButton(
+                      child: const Text('Cancel'),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                    TextButton(
+                      child: const Text('Confirm'),
+                      onPressed: () {
+                        // Handle the confirm action
+                        SharePref.shred.setBool('islogin', false);
+                        Navigator.of(context).pushAndRemoveUntil(
+                            MaterialPageRoute(
+                                builder: (context) => MyHomePage()),
+                            (Route route) => false);
+                      },
+                    ),
+                  ],
+                ));
+        return false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.green,
+          leading: GestureDetector(
+            child: Icon(
+              Icons.arrow_back_ios,
+              color: Colors.white,
+            ),
+            onTap: () {
+              SharePref.shred.setBool('islogin', false);
+              Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (context) => MyHomePage()),
+                  (Route route) => false);
+            },
+          ),
+          title: const Text(
+            "AWS Dashboard",
             style: TextStyle(color: Colors.white),
           ),
         ),
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Column(
+        body: Scrollbar(
+          trackVisibility: true,
+          interactive: true,
+          thickness: 7,
+          thumbVisibility: true,
+          child: SingleChildScrollView(
+            child: Column(
               children: [
-                Card(
-                  //Color(0xFFfef9f5),
-                  color: const Color.fromARGB(255, 254, 249, 245),
-                  elevation: 4,
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: Container(
-                          width: w,
-                          // height: 40,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              TextButton(
-                                onPressed: () async {
-                                  // getStateData(); // remove it when not in trial use
-                                  // Add your onPressed logic here
-                                  await _callDialog(context);
-                                },
-                                child: Icon(Icons.filter_alt_rounded),
+                Column(
+                  children: [
+                    Card(
+                      //Color(0xFFfef9f5),
+                      color: const Color.fromARGB(255, 254, 249, 245),
+                      elevation: 4,
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: Container(
+                              width: w,
+                              // height: 40,
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  TextButton(
+                                    onPressed: () async {
+                                      // getStateData(); // remove it when not in trial use
+                                      // Add your onPressed logic here
+                                      await _callDialog(context);
+                                    },
+                                    child: Icon(Icons.filter_alt_rounded),
+                                  ),
+                                ],
                               ),
-                            ],
+                            ),
                           ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 350,
-                        width: w,
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.vertical,
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 8, right: 8, bottom: 8),
-                              child: DataTable(
-                                columnSpacing: 30,
-                                //Use this to set heading height.
-                                headingRowHeight: 45,
-                                dataRowHeight: 32,
-                                border: TableBorder.all(),
-                                columns: _buildDataColumns(),
+                          SizedBox(
+                            height: 350,
+                            width: w,
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.vertical,
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 8, right: 8, bottom: 8),
+                                  child: DataTable(
+                                    columnSpacing: 30,
+                                    //Use this to set heading height.
+                                    headingRowHeight: 45,
+                                    dataRowHeight: 32,
+                                    border: TableBorder.all(),
+                                    columns: _buildDataColumns(),
 
-                                rows: _rows,
+                                    rows: _rows,
+                                  ),
+                                ),
                               ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: 2,
+                    ),
+                    Card(
+                      color: const Color.fromARGB(255, 254, 249, 245),
+                      elevation: 4,
+                      child: GestureDetector(
+                        onTap: () {
+                          // Handle tap action here
+                          print('Circular chart tapped!');
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Container(
+                            height: 300,
+                            child: SfCircularChart(
+                              // title: ChartTitle(text: 'Location Chart'),
+                              annotations: <CircularChartAnnotation>[
+                                CircularChartAnnotation(
+                                    widget: Container(
+                                  child: Text('Total: ' + total),
+                                ))
+                              ],
+                              legend: Legend(
+                                  isVisible: true,
+                                  isResponsive: true,
+                                  position: LegendPosition.bottom,
+                                  overflowMode: LegendItemOverflowMode.wrap),
+                              tooltipBehavior: TooltipBehavior(enable: true),
+                              series: <CircularSeries>[
+                                DoughnutSeries<ChartData, String>(
+                                    dataSource: _chartData,
+                                    // <ChartData>[
+                                    //   ChartData('Alpha', 10),
+                                    //   ChartData('Beta', 20),
+                                    //   ChartData('Cricket', 30),
+                                    // ],
+                                    xValueMapper: (ChartData data, _) =>
+                                        data.category,
+                                    yValueMapper: (ChartData data, _) =>
+                                        data.value,
+                                    dataLabelSettings: const DataLabelSettings(
+                                        isVisible: true,
+                                        // Positioning the data label
+                                        labelPosition:
+                                            ChartDataLabelPosition.outside)),
+                              ],
                             ),
                           ),
                         ),
                       ),
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  height: 2,
-                ),
-                Card(
-                  color: const Color.fromARGB(255, 254, 249, 245),
-                  elevation: 4,
-                  child: GestureDetector(
-                    onTap: () {
-                      // Handle tap action here
-                      print('Circular chart tapped!');
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Container(
-                        height: 300,
-                        child: SfCircularChart(
-                          // title: ChartTitle(text: 'Location Chart'),
-                          annotations: <CircularChartAnnotation>[
-                            CircularChartAnnotation(
-                                widget: Container(
-                              child: Text('Total: ' + total),
-                            ))
-                          ],
-                          legend: Legend(
-                              isVisible: true,
-                              isResponsive: true,
-                              position: LegendPosition.bottom,
-                              overflowMode: LegendItemOverflowMode.wrap),
-                          tooltipBehavior: TooltipBehavior(enable: true),
-                          series: <CircularSeries>[
-                            DoughnutSeries<ChartData, String>(
-                                dataSource: _chartData,
-                                // <ChartData>[
-                                //   ChartData('Alpha', 10),
-                                //   ChartData('Beta', 20),
-                                //   ChartData('Cricket', 30),
-                                // ],
-                                xValueMapper: (ChartData data, _) =>
-                                    data.category,
-                                yValueMapper: (ChartData data, _) => data.value,
-                                dataLabelSettings: const DataLabelSettings(
-                                    isVisible: true,
-                                    // Positioning the data label
-                                    labelPosition:
-                                        ChartDataLabelPosition.outside)),
-                          ],
-                        ),
-                      ),
                     ),
-                  ),
+                  ],
                 ),
               ],
             ),
-          ],
+          ),
         ),
       ),
     );
