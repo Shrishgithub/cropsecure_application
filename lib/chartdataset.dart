@@ -7,11 +7,26 @@ import 'package:cropsecure_application/Utils/constant.dart';
 import 'package:cropsecure_application/Utils/dateformat.dart';
 import 'package:cropsecure_application/Utils/sharedpref.dart';
 import 'package:cropsecure_application/Utils/spinkit.dart';
+import 'package:cropsecure_application/Utils/tablechart.dart';
 // import 'package:cropsecure_application/Utils/notinuse/temphumidity.dart';
 import 'package:cropsecure_application/chartdetail.dart';
 import 'package:cropsecure_application/homepage.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+
+/// Pdf import.
+import 'package:syncfusion_flutter_pdf/pdf.dart';
+
+import 'dart:io';
+import 'dart:typed_data';
+import 'dart:ui' as ui;
+import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:open_file/open_file.dart';
+import 'package:path_provider/path_provider.dart';
+
+/// Pdf import.
+import 'package:syncfusion_flutter_pdf/pdf.dart';
 
 class ChartDataSet extends StatefulWidget {
   final String location;
@@ -45,6 +60,8 @@ class _ChartDataSetState extends State<ChartDataSet> {
 
   String selectedDuration = '1D';
   bool isLoading = true;
+
+  late GlobalKey<SfCartesianChartState> _cartesianChartKey;
 
   @override
   void initState() {
@@ -390,14 +407,29 @@ class _DataSetUIState extends State<DataSetUI> {
                     widget.name,
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  // Row(
-                  //   children: [
-                  //     TextButton(
-                  //       onPressed: () {},
-                  //       child: Icon(Icons.filter_alt_rounded),
-                  //     )
-                  //   ],
-                  // )
+                  Row(
+                    children: [
+                      TextButton(
+                          onPressed: () {
+                            toastMsg('Download Chart');
+                            _renderPDF();
+                          },
+                          child: Icon(
+                            Icons.file_download_outlined,
+                            color: Colors.grey,
+                          )),
+                      TextButton(
+                          onPressed: () {
+                            toastMsg('Go to Table Module');
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => ChartTable()));
+                          },
+                          child: SizedBox(
+                              height: 30,
+                              width: 30,
+                              child: Image.asset('assets/pdf.png'))),
+                    ],
+                  )
                 ],
               ),
             ),
@@ -405,9 +437,9 @@ class _DataSetUIState extends State<DataSetUI> {
           Row(
             children: [
               _selectday(widget.name, '1D', true),
-              _selectday(widget.name, '5D', true),
-              _selectday(widget.name, '1M', true),
-              _selectday(widget.name, '6M', false),
+              _selectday(widget.name, '1W', true),
+              _selectday(widget.name, '1M', false),
+              // _selectday(widget.name, '6M', false),
             ],
           ),
           Container(
@@ -508,6 +540,8 @@ class _DataSetUIState extends State<DataSetUI> {
         //     ),
         //   );
         // });
+      } else if (date == '1W') {
+        fromdate = dateFormatOneWeeksBefore();
       } else if (date == '5D') {
         fromdate = dateFormatFiveDaysBefore();
       } else if (date == '1M') {
@@ -567,6 +601,7 @@ class _DataSetUIState extends State<DataSetUI> {
           List<ChartData> averageNOX = [];
 
           if (param == 'Temperature & Humidity') {
+            // _cartesianChartKey = GlobalKey();
             for (var temp in cc.data.tempData) {
               String date = dateFormatLog(
                   temp.deviceDate.toString()); //toIso8601String().split('T')[0]
@@ -676,6 +711,38 @@ class _DataSetUIState extends State<DataSetUI> {
     Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (context) => MyHomePage()),
         (Route route) => false);
+  }
+
+  Future<void> _renderPDF() async {
+    final List<int> imageBytes = await _readImageData();
+    final PdfBitmap bitmap = PdfBitmap(imageBytes);
+    final PdfDocument document = PdfDocument();
+    document.pageSettings.size =
+        Size(bitmap.width.toDouble(), bitmap.height.toDouble());
+    final PdfPage page = document.pages.add();
+    final Size pageSize = page.getClientSize();
+    page.graphics.drawImage(
+        bitmap, Rect.fromLTWH(0, 0, pageSize.width, pageSize.height));
+    final List<int> bytes = document.saveSync();
+    document.dispose();
+    //Get external storage directory
+    final Directory directory = await getApplicationSupportDirectory();
+    //Get directory path
+    final String path = directory.path;
+    //Create an empty file to write PDF data
+    File file = File('$path/Output.pdf');
+    //Write PDF bytes data
+    await file.writeAsBytes(bytes, flush: true);
+    //Open the PDF document in mobile
+    OpenFile.open('$path/Output.pdf');
+  }
+
+  _readImageData() async {
+    // final ui.Image data =
+    //     await _cartesianChartKey.currentState!.toImage(pixelRatio: 3.0);
+    // final ByteData? bytes =
+    //     await data.toByteData(format: ui.ImageByteFormat.png);
+    // return bytes!.buffer.asUint8List(bytes.offsetInBytes, bytes.lengthInBytes);00
   }
 }
 

@@ -512,7 +512,10 @@ class _ListDataState extends State<ListData> {
                           //   },
                           // );
                         },
-                        child: Text(datum.count)),
+                        child: Text(
+                          datum.count,
+                          style: TextStyle(color: Colors.blue),
+                        )),
                     GestureDetector(
                       onTap: () async {
                         String userId =

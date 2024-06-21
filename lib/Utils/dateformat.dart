@@ -16,6 +16,13 @@ String dateFormatFiveDaysBefore() {
   return formattedDate;
 }
 
+String dateFormatOneWeeksBefore() {
+  DateTime c = DateTime.now().subtract(Duration(days: 7));
+  DateFormat df = DateFormat("yyyy-MM-dd");
+  String formattedDate = df.format(c);
+  return formattedDate;
+}
+
 String dateFormatOneMonthBefore() {
   DateTime now = DateTime.now();
   DateTime oneMonthBefore = DateTime(now.year, now.month - 1, now.day);
