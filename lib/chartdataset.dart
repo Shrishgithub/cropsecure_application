@@ -12,6 +12,7 @@ import 'package:cropsecure_application/Utils/tablechart.dart';
 import 'package:cropsecure_application/chartdetail.dart';
 import 'package:cropsecure_application/homepage.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 /// Pdf import.
@@ -60,8 +61,6 @@ class _ChartDataSetState extends State<ChartDataSet> {
 
   String selectedDuration = '1D';
   bool isLoading = true;
-
-  late GlobalKey<SfCartesianChartState> _cartesianChartKey;
 
   @override
   void initState() {
@@ -387,6 +386,7 @@ class DataSetUI extends StatefulWidget {
 
 class _DataSetUIState extends State<DataSetUI> {
   // String selectedDuration = '1D';
+  late GlobalKey<SfCartesianChartState> _cartesianChartKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
@@ -411,8 +411,8 @@ class _DataSetUIState extends State<DataSetUI> {
                     children: [
                       TextButton(
                           onPressed: () {
-                            toastMsg('Download Chart');
-                            _renderPDF();
+                            // toastMsg('Download Chart');
+                            _renderPDF(widget.name);
                           },
                           child: Icon(
                             Icons.file_download_outlined,
@@ -420,9 +420,17 @@ class _DataSetUIState extends State<DataSetUI> {
                           )),
                       TextButton(
                           onPressed: () {
-                            toastMsg('Go to Table Module');
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => ChartTable()));
+                            PdfGenerator.createPdf(
+                                widget.name,
+                                widget.dataName1,
+                                widget.data1,
+                                widget.dataName2,
+                                widget.data2,
+                                widget.dataName3,
+                                widget.data3);
+                            // toastMsg('Go to Table Module');
+                            // Navigator.of(context).push(MaterialPageRoute(
+                            //     builder: (context) => ChartTable()));
                           },
                           child: SizedBox(
                               height: 30,
@@ -446,6 +454,7 @@ class _DataSetUIState extends State<DataSetUI> {
             height: 400,
             padding: EdgeInsets.only(left: 8, right: 8),
             child: SfCartesianChart(
+              key: _cartesianChartKey,
               // title: ChartTitle(text: 'Wind Speed Data'),
               legend: Legend(
                   isVisible: true,
@@ -713,7 +722,40 @@ class _DataSetUIState extends State<DataSetUI> {
         (Route route) => false);
   }
 
-  Future<void> _renderPDF() async {
+  // Future<void> _renderPDF() async {
+  //   final List<int> imageBytes = await _readImageData();
+  //   final PdfBitmap bitmap = PdfBitmap(imageBytes);
+  //   final PdfDocument document = PdfDocument();
+  //   document.pageSettings.size =
+  //       Size(bitmap.width.toDouble(), bitmap.height.toDouble());
+  //   final PdfPage page = document.pages.add();
+  //   final Size pageSize = page.getClientSize();
+  //   page.graphics.drawImage(
+  //       bitmap, Rect.fromLTWH(0, 0, pageSize.width, pageSize.height));
+  //   final List<int> bytes = document.saveSync();
+  //   document.dispose();
+  //   //Get external storage directory
+  //   final Directory directory = await getApplicationSupportDirectory();
+  //   //Get directory path
+  //   final String path = directory.path;
+  //   //Create an empty file to write PDF data
+  //   File file = File('$path/Output.pdf');
+  //   //Write PDF bytes data
+  //   await file.writeAsBytes(bytes, flush: true);
+  //   //Open the PDF document in mobile
+  //   OpenFile.open('$path/Output.pdf');
+  // }
+
+  // _readImageData() async {
+  //   final ui.Image data =
+  //       await _cartesianChartKey.currentState!.toImage(pixelRatio: 3.0);
+  //   final ByteData? bytes =
+  //       await data.toByteData(format: ui.ImageByteFormat.png);
+  //   return bytes!.buffer.asUint8List(bytes.offsetInBytes, bytes.lengthInBytes);
+  // }
+
+  Future<void> _renderPDF(String name) async {
+    dialogLoader(context, 'loading...');
     final List<int> imageBytes = await _readImageData();
     final PdfBitmap bitmap = PdfBitmap(imageBytes);
     final PdfDocument document = PdfDocument();
@@ -721,28 +763,50 @@ class _DataSetUIState extends State<DataSetUI> {
         Size(bitmap.width.toDouble(), bitmap.height.toDouble());
     final PdfPage page = document.pages.add();
     final Size pageSize = page.getClientSize();
+
+    // Define the title and its font
+    final String title = name;
+    final PdfFont font = PdfStandardFont(PdfFontFamily.helvetica, 50);
+    final double titleHeight = font.height;
+
+    // Draw the title at the top center of the page
+    page.graphics.drawString(title, font,
+        bounds: Rect.fromLTWH(0, 0, pageSize.width, titleHeight),
+        format: PdfStringFormat(alignment: PdfTextAlignment.center));
+
+    // Draw the image below the title
     page.graphics.drawImage(
-        bitmap, Rect.fromLTWH(0, 0, pageSize.width, pageSize.height));
+        bitmap,
+        Rect.fromLTWH(0, titleHeight + 10, pageSize.width,
+            pageSize.height - titleHeight - 10));
+
     final List<int> bytes = document.saveSync();
     document.dispose();
-    //Get external storage directory
+
+    // Get external storage directory
     final Directory directory = await getApplicationSupportDirectory();
-    //Get directory path
+    // Get directory path
     final String path = directory.path;
-    //Create an empty file to write PDF data
-    File file = File('$path/Output.pdf');
-    //Write PDF bytes data
+
+    // Format the current date and time
+    final String formattedDateTime =
+        DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
+
+    // Create an empty file to write PDF data
+    File file = File('$path/$formattedDateTime.pdf');
+    // Write PDF bytes data
     await file.writeAsBytes(bytes, flush: true);
-    //Open the PDF document in mobile
-    OpenFile.open('$path/Output.pdf');
+    // Open the PDF document in mobile
+    OpenFile.open(file.path);
+    dialogClose(context);
   }
 
   _readImageData() async {
-    // final ui.Image data =
-    //     await _cartesianChartKey.currentState!.toImage(pixelRatio: 3.0);
-    // final ByteData? bytes =
-    //     await data.toByteData(format: ui.ImageByteFormat.png);
-    // return bytes!.buffer.asUint8List(bytes.offsetInBytes, bytes.lengthInBytes);00
+    final ui.Image data =
+        await _cartesianChartKey.currentState!.toImage(pixelRatio: 3.0);
+    final ByteData? bytes =
+        await data.toByteData(format: ui.ImageByteFormat.png);
+    return bytes!.buffer.asUint8List(bytes.offsetInBytes, bytes.lengthInBytes);
   }
 }
 
@@ -773,4 +837,78 @@ class ChartData {
   final double value;
 
   ChartData(this.category, this.value);
+}
+
+class PdfGenerator {
+  static Future<void> createPdf(
+    String title,
+    String dataName1,
+    List<ChartData> data1,
+    String dataName2,
+    List<ChartData> data2,
+    String dataName3,
+    List<ChartData> data3,
+  ) async {
+    final PdfDocument document = PdfDocument();
+    final PdfPage page = document.pages.add();
+    final Size pageSize = page.getClientSize();
+
+    // Add title
+    final PdfFont titleFont = PdfStandardFont(PdfFontFamily.helvetica, 18);
+    page.graphics.drawString(title, titleFont,
+        bounds: Rect.fromLTWH(0, 0, pageSize.width, 40),
+        format: PdfStringFormat(alignment: PdfTextAlignment.center));
+
+    final PdfGrid grid = PdfGrid();
+    if (data3.isEmpty) {
+      grid.columns
+          .add(count: 3); // Including date column and three data columns
+    } else {
+      grid.columns.add(count: 4);
+    }
+
+    grid.headers.add(1);
+
+    final PdfGridRow header = grid.headers[0];
+    header.cells[0].value = 'Date';
+    header.cells[1].value = dataName1;
+    header.cells[2].value = dataName2;
+    if (data3.isNotEmpty) {
+      header.cells[3].value = dataName3;
+    }
+
+    int maxLength = [data1.length, data2.length, data3.length]
+        .reduce((a, b) => a > b ? a : b);
+
+    for (int i = 0; i < maxLength; i++) {
+      final PdfGridRow row = grid.rows.add();
+      row.cells[0].value = i < data1.length ? data1[i].category : '';
+      row.cells[1].value = i < data1.length ? data1[i].value.toString() : '';
+      row.cells[2].value = i < data2.length ? data2[i].value.toString() : '';
+      if (data3.isNotEmpty) {
+        row.cells[3].value = i < data3.length ? data3[i].value.toString() : '';
+      }
+    }
+
+    // Draw the grid below the title
+    grid.draw(
+      page: page,
+      bounds: Rect.fromLTWH(0, 50, 0, 0),
+    );
+
+    final List<int> bytes = document.saveSync();
+    document.dispose();
+
+    final Directory directory = await getApplicationSupportDirectory();
+    final String path = directory.path;
+    // Format the current date and time
+    final String formattedDateTime =
+        DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
+
+    // Create an empty file to write PDF data
+    File file = File('$path/$formattedDateTime.pdf');
+    await file.writeAsBytes(bytes, flush: true);
+
+    OpenFile.open(file.path);
+  }
 }
