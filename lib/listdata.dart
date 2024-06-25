@@ -13,6 +13,7 @@ import 'package:cropsecure_application/Utils/appcontroller.dart';
 import 'package:cropsecure_application/Utils/constant.dart';
 import 'package:cropsecure_application/Utils/sharedpref.dart';
 import 'package:cropsecure_application/Utils/spinkit.dart';
+import 'package:cropsecure_application/Utils/table.dart';
 import 'package:cropsecure_application/homepage.dart';
 import 'package:cropsecure_application/leveldialog.dart';
 import 'package:cropsecure_application/locationlist.dart';
@@ -37,6 +38,7 @@ class _ListDataState extends State<ListData> {
   List<DataRow> _rows = [];
   List<ChartData> _chartData = [];
   String total = '';
+  int num = 1;
   bool _showBlockColumn = true;
 
   // static _ListDataState list = _ListDataState();
@@ -181,39 +183,45 @@ class _ListDataState extends State<ListData> {
                           padding: const EdgeInsets.all(8.0),
                           child: Container(
                             height: 300,
-                            child: SfCircularChart(
-                              // title: ChartTitle(text: 'Location Chart'),
-                              annotations: <CircularChartAnnotation>[
-                                CircularChartAnnotation(
-                                    widget: Container(
-                                  child: Text('Total: ' + total),
-                                ))
-                              ],
-                              legend: Legend(
-                                  isVisible: true,
-                                  isResponsive: true,
-                                  position: LegendPosition.bottom,
-                                  overflowMode: LegendItemOverflowMode.wrap),
-                              tooltipBehavior: TooltipBehavior(enable: true),
-                              series: <CircularSeries>[
-                                DoughnutSeries<ChartData, String>(
-                                    dataSource: _chartData,
-                                    // <ChartData>[
-                                    //   ChartData('Alpha', 10),
-                                    //   ChartData('Beta', 20),
-                                    //   ChartData('Cricket', 30),
-                                    // ],
-                                    xValueMapper: (ChartData data, _) =>
-                                        data.category,
-                                    yValueMapper: (ChartData data, _) =>
-                                        data.value,
-                                    dataLabelSettings: const DataLabelSettings(
+                            child: num < 11
+                                ? ChartTable() // show when location number is less than 10 else show sfcircularchart
+                                : SfCircularChart(
+                                    // title: ChartTitle(text: 'Location Chart'),
+                                    annotations: <CircularChartAnnotation>[
+                                      CircularChartAnnotation(
+                                          widget: Container(
+                                        child: Text('Total: ' + total),
+                                      ))
+                                    ],
+                                    legend: Legend(
                                         isVisible: true,
-                                        // Positioning the data label
-                                        labelPosition:
-                                            ChartDataLabelPosition.outside)),
-                              ],
-                            ),
+                                        isResponsive: true,
+                                        position: LegendPosition.bottom,
+                                        overflowMode:
+                                            LegendItemOverflowMode.wrap),
+                                    tooltipBehavior:
+                                        TooltipBehavior(enable: true),
+                                    series: <CircularSeries>[
+                                      DoughnutSeries<ChartData, String>(
+                                          dataSource: _chartData,
+                                          // <ChartData>[
+                                          //   ChartData('Alpha', 10),
+                                          //   ChartData('Beta', 20),
+                                          //   ChartData('Cricket', 30),
+                                          // ],
+                                          xValueMapper: (ChartData data, _) =>
+                                              data.category,
+                                          yValueMapper: (ChartData data, _) =>
+                                              data.value,
+                                          dataLabelSettings:
+                                              const DataLabelSettings(
+                                                  isVisible: true,
+                                                  // Positioning the data label
+                                                  labelPosition:
+                                                      ChartDataLabelPosition
+                                                          .outside)),
+                                    ],
+                                  ),
                           ),
                         ),
                       ),
@@ -554,6 +562,7 @@ class _ListDataState extends State<ListData> {
           }).toList();
           logError("name2", _rows.length.toString());
           total = lc.total.toString();
+          num = int.parse(total);
           // ignore: use_build_context_synchronously
           setState(() {});
         }

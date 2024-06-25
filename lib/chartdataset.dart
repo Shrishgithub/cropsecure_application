@@ -7,7 +7,6 @@ import 'package:cropsecure_application/Utils/constant.dart';
 import 'package:cropsecure_application/Utils/dateformat.dart';
 import 'package:cropsecure_application/Utils/sharedpref.dart';
 import 'package:cropsecure_application/Utils/spinkit.dart';
-import 'package:cropsecure_application/Utils/tablechart.dart';
 // import 'package:cropsecure_application/Utils/notinuse/temphumidity.dart';
 import 'package:cropsecure_application/chartdetail.dart';
 import 'package:cropsecure_application/homepage.dart';
@@ -880,6 +879,11 @@ class PdfGenerator {
     int maxLength = [data1.length, data2.length, data3.length]
         .reduce((a, b) => a > b ? a : b);
 
+    // Create a cell style and set the alignment to center.
+    PdfGridCellStyle cellStyle = PdfGridCellStyle();
+    cellStyle.stringFormat =
+        PdfStringFormat(alignment: PdfTextAlignment.center);
+
     for (int i = 0; i < maxLength; i++) {
       final PdfGridRow row = grid.rows.add();
       row.cells[0].value = i < data1.length ? data1[i].category : '';
@@ -889,6 +893,13 @@ class PdfGenerator {
         row.cells[3].value = i < data3.length ? data3[i].value.toString() : '';
       }
     }
+
+    //Set the grid style
+    grid.style = PdfGridStyle(
+        cellPadding: PdfPaddings(left: 0, right: 0, top: 0, bottom: 0),
+        // backgroundBrush: PdfBrushes.bisque,
+        // textBrush: PdfBrushes.white,
+        font: PdfStandardFont(PdfFontFamily.timesRoman, 10));
 
     // Draw the grid below the title
     grid.draw(
