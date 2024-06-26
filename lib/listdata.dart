@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'dart:ffi';
 
 import 'package:cropsecure_application/Database/db.dart';
 import 'package:cropsecure_application/Database/sqlquery.dart';
@@ -13,7 +12,7 @@ import 'package:cropsecure_application/Utils/appcontroller.dart';
 import 'package:cropsecure_application/Utils/constant.dart';
 import 'package:cropsecure_application/Utils/sharedpref.dart';
 import 'package:cropsecure_application/Utils/spinkit.dart';
-import 'package:cropsecure_application/Utils/table.dart';
+import 'package:cropsecure_application/table.dart';
 import 'package:cropsecure_application/homepage.dart';
 import 'package:cropsecure_application/leveldialog.dart';
 import 'package:cropsecure_application/locationlist.dart';
@@ -37,6 +36,7 @@ class ListData extends StatefulWidget {
 class _ListDataState extends State<ListData> {
   List<DataRow> _rows = [];
   List<ChartData> _chartData = [];
+  ParamData? paramData;
   String total = '';
   int num = 1;
   bool _showBlockColumn = true;
@@ -183,8 +183,10 @@ class _ListDataState extends State<ListData> {
                           padding: const EdgeInsets.all(8.0),
                           child: Container(
                             height: 300,
-                            child: num < 11
-                                ? ChartTable() // show when location number is less than 10 else show sfcircularchart
+                            child: paramData != null
+                                ? ChartTable(
+                                    paramData:
+                                        paramData) // show when location number is less than 10 else show sfcircularchart//paramData:paramData!
                                 : SfCircularChart(
                                     // title: ChartTitle(text: 'Location Chart'),
                                     annotations: <CircularChartAnnotation>[
@@ -393,9 +395,13 @@ class _ListDataState extends State<ListData> {
         data = jsonDecode(data);
         logSuccess('name0', data.toString());
         LocationCount lc = LocationCount.fromMap(data);
+
         logSuccess('Location Succes', lc.status);
         if (lc.status == 'success') {
+          paramData = lc.paramData;
+          logSuccess('paramdata', paramData.toString());
           logError("name1", _rows.length.toString());
+
           for (DatumLocMdl datum in lc.data) {
             state.add(datum.level1.toString());
             district.add(datum.level2.toString());
@@ -563,6 +569,7 @@ class _ListDataState extends State<ListData> {
           logError("name2", _rows.length.toString());
           total = lc.total.toString();
           num = int.parse(total);
+          logError('checkData', '$num');
           // ignore: use_build_context_synchronously
           setState(() {});
         }
