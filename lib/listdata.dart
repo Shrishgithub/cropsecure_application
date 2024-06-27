@@ -36,7 +36,8 @@ class ListData extends StatefulWidget {
 class _ListDataState extends State<ListData> {
   List<DataRow> _rows = [];
   List<ChartData> _chartData = [];
-  ParamData? paramData;
+  // ParamData? paramData;
+  List<ParamData> paramData = [];
   String total = '';
   int num = 1;
   bool _showBlockColumn = true;
@@ -64,13 +65,19 @@ class _ListDataState extends State<ListData> {
                   content: const Text('Are you sure you want to Exit !!'),
                   actions: <Widget>[
                     TextButton(
-                      child: const Text('Cancel'),
+                      child: const Text(
+                        'Cancel',
+                        style: TextStyle(color: Colors.green),
+                      ),
                       onPressed: () {
                         Navigator.of(context).pop();
                       },
                     ),
                     TextButton(
-                      child: const Text('Confirm'),
+                      child: const Text(
+                        'Confirm',
+                        style: TextStyle(color: Colors.green),
+                      ),
                       onPressed: () {
                         // Handle the confirm action
                         SharePref.shred.setBool('islogin', false);
@@ -129,13 +136,24 @@ class _ListDataState extends State<ListData> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text(
+                                      'AWS Location',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
                                   TextButton(
                                     onPressed: () async {
                                       // getStateData(); // remove it when not in trial use
                                       // Add your onPressed logic here
                                       await _callDialog(context);
                                     },
-                                    child: Icon(Icons.filter_alt_rounded),
+                                    child: Icon(
+                                      Icons.filter_alt_rounded,
+                                      color: Colors.blue,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -182,12 +200,9 @@ class _ListDataState extends State<ListData> {
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Container(
-                            height: 300,
-                            child: paramData != null
-                                ? ChartTable(
-                                    paramData:
-                                        paramData) // show when location number is less than 10 else show sfcircularchart//paramData:paramData!
-                                : SfCircularChart(
+                            height: 350,
+                            child: paramData.isEmpty
+                                ? SfCircularChart(
                                     // title: ChartTitle(text: 'Location Chart'),
                                     annotations: <CircularChartAnnotation>[
                                       CircularChartAnnotation(
@@ -223,7 +238,11 @@ class _ListDataState extends State<ListData> {
                                                       ChartDataLabelPosition
                                                           .outside)),
                                     ],
-                                  ),
+                                  )
+                                : SizedBox(
+                                    child: ChartTable(paramData: paramData),
+                                  ) // show when location number is less than 10 else show sfcircularchart//paramData:paramData!
+                            ,
                           ),
                         ),
                       ),

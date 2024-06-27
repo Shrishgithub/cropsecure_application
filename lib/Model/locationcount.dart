@@ -11,7 +11,8 @@ String locationCountToMap(LocationCount data) => json.encode(data.toMap());
 
 class LocationCount {
   String status;
-  ParamData? paramData;
+  List<ParamData> paramData;
+  // ParamData? paramData;
   List<DatumLocMdl> data;
   String locationId;
   // DateTime date;
@@ -28,10 +29,16 @@ class LocationCount {
 
   factory LocationCount.fromMap(Map<String?, dynamic> json) => LocationCount(
         status: json["status"],
-        // paramData: ParamData.fromMap(json["param_date"]),
         paramData: json["param_data"] != null
-            ? ParamData.fromMap(json["param_data"])
-            : null,
+            ? List<ParamData>.from(
+                json["param_data"].map((x) => ParamData.fromMap(x)))
+            : [],
+
+        // // paramData: List<ParamData>.from(
+        // //     json["param_data"].map((x) => ParamData.fromMap(x))),
+        // // paramData: json["param_data"] != null
+        // //     ? ParamData.fromMap(json["param_data"])
+        // //     : null,
         data: List<DatumLocMdl>.from(
             json["data"].map((x) => DatumLocMdl.fromMap(x))),
         locationId: json["location_id"],
@@ -41,7 +48,11 @@ class LocationCount {
 
   Map<String, dynamic> toMap() => {
         "status": status,
-        "param_data": paramData?.toMap(),
+        "param_data": paramData != null
+            ? List<dynamic>.from(paramData!.map((x) => x.toMap()))
+            : null,
+        // "param_data": List<dynamic>.from(paramData.map((x) => x.toMap())),
+        // "param_data": paramData?.toMap(),
         "data": List<dynamic>.from(data.map((x) => x.toMap())),
         "location_id": locationId,
         // "date":

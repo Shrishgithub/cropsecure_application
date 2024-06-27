@@ -78,7 +78,10 @@ class _MyDialogState extends State<MyDialog> {
           onPressed: () {
             Navigator.of(context).pop();
           },
-          child: Text('Close'),
+          child: Text(
+            'Close',
+            style: TextStyle(color: Colors.green),
+          ),
         ),
         TextButton(
           onPressed: () async {
@@ -91,7 +94,10 @@ class _MyDialogState extends State<MyDialog> {
             Map<String, Object?> selectedValues = await _selectedValues();
             Navigator.of(context).pop(selectedValues);
           },
-          child: Text('Submit'),
+          child: Text(
+            'Submit',
+            style: TextStyle(color: Colors.green),
+          ),
         ),
       ],
     );
@@ -109,7 +115,11 @@ class _MyDialogState extends State<MyDialog> {
       child: DropdownButtonHideUnderline(
         child: DropdownButtonFormField<String>(
           value: value,
-          hint: Text(hint),
+          hint: Text(
+            hint,
+            style:
+                TextStyle(color: Colors.black, fontWeight: FontWeight.normal),
+          ),
           items: items.map((String item) {
             return DropdownMenuItem<String>(
               value: item,

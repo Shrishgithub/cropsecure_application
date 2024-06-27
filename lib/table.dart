@@ -5,52 +5,79 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class ChartTable extends StatelessWidget {
-  ParamData? paramData;
+  List<ParamData>? paramData;
   ChartTable({required this.paramData});
-  // const ChartTable({super.key});
+  // const ChartTable({super.key});33
 
   @override
   Widget build(BuildContext context) {
-    logError('checkData', (paramData == null).toString());
-    return SizedBox(
-      child: paramData != null
-          ? Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Title(
-                      color: Colors.black,
-                      child: Text(
-                        'Location Data',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 20),
-                      )),
-                ),
-                DataTable(columns: [
-                  DataColumn(label: Text('Parameter')),
-                  DataColumn(label: Text('Value')),
-                  DataColumn(label: Text('Location')),
-                ], rows: [
-                  DataRow(cells: [
-                    DataCell(Text('MaxRainFall (mm)')),
-                    DataCell(Text(paramData!.maxRain.datavalue
-                        .toString())), ////widget.paramData.maxRain.datavalue.toString()
-                    DataCell(Text(paramData!.maxRain.id.toString())),
-                  ]),
-                  DataRow(cells: [
-                    DataCell(Text('MaxTemp (℃)')),
-                    DataCell(Text(paramData!.maxTemp.datavalue.toString())),
-                    DataCell(Text(paramData!.maxTemp.id.toString())),
-                  ]),
-                  DataRow(cells: [
-                    DataCell(Text('MinTemp (℃')),
-                    DataCell(Text(paramData!.minTemp.datavalue.toString())),
-                    DataCell(Text(paramData!.minTemp.id.toString())),
-                  ]),
-                ]),
-              ],
-            )
-          : null,
+    logError('checkData1', (paramData == null).toString());
+    return Container(
+      color: Color.fromARGB(255, 230, 213, 187),
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Title(
+                color: Colors.black,
+                child: Text(
+                  'AWS Location Parameter',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                  ), //color: Color.fromARGB(255, 129, 122, 122)
+                )),
+          ),
+          Container(
+            color: Color.fromARGB(255, 239, 210, 166),
+            child: DataTable(columns: [
+              DataColumn(
+                  label: Text(
+                'Parameter',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              )),
+              DataColumn(
+                  label: Text(
+                'Value',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              )),
+              DataColumn(
+                  label: Text(
+                'Location',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              )),
+            ], rows: [
+              DataRow(cells: [
+                DataCell(Text(
+                  'MaxRainFall (mm)',
+                )),
+                DataCell(Text(paramData!.first.maxRain.datavalue
+                    .toString())), ////widget.paramData.maxRain.datavalue.toString()
+                DataCell(Text(
+                  paramData!.first.maxRain.id.toString(),
+                  style: TextStyle(color: Color.fromARGB(255, 231, 3, 3)),
+                )),
+              ]),
+              DataRow(cells: [
+                DataCell(Text('MaxTemp (℃)')),
+                DataCell(Text(paramData!.first.maxTemp.datavalue.toString())),
+                DataCell(Text(
+                  paramData!.first.maxTemp.id.toString(),
+                  style: TextStyle(color: Color.fromARGB(255, 231, 3, 3)),
+                )),
+              ]),
+              DataRow(cells: [
+                DataCell(Text('MinTemp (℃) ')),
+                DataCell(Text(paramData!.first.minTemp.datavalue.toString())),
+                DataCell(Text(
+                  paramData!.first.minTemp.id.toString(),
+                  style: TextStyle(color: Color.fromARGB(255, 30, 181, 35)),
+                )),
+              ]),
+            ]),
+          ),
+        ],
+      ),
     );
   }
 }
