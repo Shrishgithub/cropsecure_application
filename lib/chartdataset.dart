@@ -30,7 +30,8 @@ import 'package:syncfusion_flutter_pdf/pdf.dart';
 
 class ChartDataSet extends StatefulWidget {
   final String location;
-  const ChartDataSet({required this.location});
+  final String locNam;
+  const ChartDataSet({required this.location, required this.locNam});
 
   @override
   State<ChartDataSet> createState() => _ChartDataSetState();
@@ -110,6 +111,7 @@ class _ChartDataSetState extends State<ChartDataSet> {
                       if (maxTempData.isNotEmpty)
                         DataSetUI(
                             location: widget.location,
+                            locationName: widget.locNam,
                             selectedDur: '1D',
                             name: 'Temperature & Humidity',
                             value: '°C',
@@ -123,6 +125,7 @@ class _ChartDataSetState extends State<ChartDataSet> {
                       if (rainfallData.isNotEmpty) //data3: minMoistureData
                         DataSetUI(
                             location: widget.location,
+                            locationName: widget.locNam,
                             selectedDur: '1D',
                             name: 'Rainfall',
                             value: 'mm',
@@ -136,6 +139,7 @@ class _ChartDataSetState extends State<ChartDataSet> {
                       if (maxWindSpeedData.isNotEmpty)
                         DataSetUI(
                             location: widget.location,
+                            locationName: widget.locNam,
                             selectedDur: selectedDuration,
                             name: 'WindSpeed',
                             value: 'mps',
@@ -149,6 +153,7 @@ class _ChartDataSetState extends State<ChartDataSet> {
                       if (averageAtmPresData.isNotEmpty)
                         DataSetUI(
                             location: widget.location,
+                            locationName: widget.locNam,
                             selectedDur: selectedDuration,
                             name: 'Atmospheric Pressure',
                             value: 'atm',
@@ -162,6 +167,7 @@ class _ChartDataSetState extends State<ChartDataSet> {
                       if (avgPm_2_5Data.isNotEmpty)
                         DataSetUI(
                             location: widget.location,
+                            locationName: widget.locNam,
                             selectedDur: selectedDuration,
                             name: 'PmData',
                             value: 'pm',
@@ -175,6 +181,7 @@ class _ChartDataSetState extends State<ChartDataSet> {
                       if (averageVOCData.isNotEmpty)
                         DataSetUI(
                             location: widget.location,
+                            locationName: widget.locNam,
                             selectedDur: selectedDuration,
                             name: 'VocNoxData',
                             value: 'vocnox',
@@ -194,6 +201,7 @@ class _ChartDataSetState extends State<ChartDataSet> {
   Future<void> getChartData() async {
     String token = await SharePref.shred.getString('token');
     logSuccess('token', token);
+    logSuccess("LocationId", widget.location);
     try {
       dialogLoader(context, 'loading...');
       var data = await APIResponse.data.postApiRequest(Constant.LocationData, {
@@ -355,6 +363,7 @@ class _ChartDataSetState extends State<ChartDataSet> {
 
 class DataSetUI extends StatefulWidget {
   final String name;
+  String locationName;
   List<ChartData> data1;
   List<ChartData> data2;
   List<ChartData> data3;
@@ -368,6 +377,7 @@ class DataSetUI extends StatefulWidget {
 
   DataSetUI(
       {required this.name,
+      required this.locationName,
       required this.data1,
       required this.data2,
       required this.value,
@@ -411,7 +421,7 @@ class _DataSetUIState extends State<DataSetUI> {
                       TextButton(
                           onPressed: () {
                             // toastMsg('Download Chart');
-                            _renderPDF(widget.name);
+                            _renderPDF(widget.name, widget.locationName);
                           },
                           child: Icon(
                             Icons.file_download_outlined,
@@ -426,7 +436,8 @@ class _DataSetUIState extends State<DataSetUI> {
                                 widget.dataName2,
                                 widget.data2,
                                 widget.dataName3,
-                                widget.data3);
+                                widget.data3,
+                                widget.locationName);
                             // toastMsg('Go to Table Module');
                             // Navigator.of(context).push(MaterialPageRoute(
                             //     builder: (context) => ChartTable()));
@@ -539,15 +550,6 @@ class _DataSetUIState extends State<DataSetUI> {
     try {
       if (date == '1D') {
         fromdate = dateFormatTodayDate();
-        // setState(() {
-        //   Text(
-        //     date,
-        //     style: const TextStyle(
-        //       color: Colors.green,
-        //       fontSize: 20.0,
-        //     ),
-        //   );
-        // });
       } else if (date == '1W') {
         fromdate = dateFormatOneWeeksBefore();
       } else if (date == '5D') {
@@ -721,39 +723,7 @@ class _DataSetUIState extends State<DataSetUI> {
         (Route route) => false);
   }
 
-  // Future<void> _renderPDF() async {
-  //   final List<int> imageBytes = await _readImageData();
-  //   final PdfBitmap bitmap = PdfBitmap(imageBytes);
-  //   final PdfDocument document = PdfDocument();
-  //   document.pageSettings.size =
-  //       Size(bitmap.width.toDouble(), bitmap.height.toDouble());
-  //   final PdfPage page = document.pages.add();
-  //   final Size pageSize = page.getClientSize();
-  //   page.graphics.drawImage(
-  //       bitmap, Rect.fromLTWH(0, 0, pageSize.width, pageSize.height));
-  //   final List<int> bytes = document.saveSync();
-  //   document.dispose();
-  //   //Get external storage directory
-  //   final Directory directory = await getApplicationSupportDirectory();
-  //   //Get directory path
-  //   final String path = directory.path;
-  //   //Create an empty file to write PDF data
-  //   File file = File('$path/Output.pdf');
-  //   //Write PDF bytes data
-  //   await file.writeAsBytes(bytes, flush: true);
-  //   //Open the PDF document in mobile
-  //   OpenFile.open('$path/Output.pdf');
-  // }
-
-  // _readImageData() async {
-  //   final ui.Image data =
-  //       await _cartesianChartKey.currentState!.toImage(pixelRatio: 3.0);
-  //   final ByteData? bytes =
-  //       await data.toByteData(format: ui.ImageByteFormat.png);
-  //   return bytes!.buffer.asUint8List(bytes.offsetInBytes, bytes.lengthInBytes);
-  // }
-
-  Future<void> _renderPDF(String name) async {
+  Future<void> _renderPDF(String name, String locationName) async {
     dialogLoader(context, 'loading...');
     final List<int> imageBytes = await _readImageData();
     final PdfBitmap bitmap = PdfBitmap(imageBytes);
@@ -764,7 +734,7 @@ class _DataSetUIState extends State<DataSetUI> {
     final Size pageSize = page.getClientSize();
 
     // Define the title and its font
-    final String title = name;
+    final String title = name + ": " + locationName; //
     final PdfFont font = PdfStandardFont(PdfFontFamily.helvetica, 50);
     final double titleHeight = font.height;
 
@@ -792,7 +762,7 @@ class _DataSetUIState extends State<DataSetUI> {
         DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
 
     // Create an empty file to write PDF data
-    File file = File('$path/$formattedDateTime.pdf');
+    File file = File('$path/$locationName.pdf');
     // Write PDF bytes data
     await file.writeAsBytes(bytes, flush: true);
     // Open the PDF document in mobile
@@ -847,6 +817,7 @@ class PdfGenerator {
     List<ChartData> data2,
     String dataName3,
     List<ChartData> data3,
+    String locationName,
   ) async {
     final PdfDocument document = PdfDocument();
     final PdfPage page = document.pages.add();
@@ -854,7 +825,7 @@ class PdfGenerator {
 
     // Add title
     final PdfFont titleFont = PdfStandardFont(PdfFontFamily.helvetica, 18);
-    page.graphics.drawString(title, titleFont,
+    page.graphics.drawString(title + ": " + locationName, titleFont,
         bounds: Rect.fromLTWH(0, 0, pageSize.width, 40),
         format: PdfStringFormat(alignment: PdfTextAlignment.center));
 
@@ -896,7 +867,7 @@ class PdfGenerator {
 
     //Set the grid style
     grid.style = PdfGridStyle(
-        cellPadding: PdfPaddings(left: 0, right: 0, top: 0, bottom: 0),
+        cellPadding: PdfPaddings(left: 5, right: 0, top: 0, bottom: 0),
         // backgroundBrush: PdfBrushes.bisque,
         // textBrush: PdfBrushes.white,
         font: PdfStandardFont(PdfFontFamily.timesRoman, 10));
@@ -917,7 +888,7 @@ class PdfGenerator {
         DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
 
     // Create an empty file to write PDF data
-    File file = File('$path/$formattedDateTime.pdf');
+    File file = File('$path/$locationName.pdf'); //formattedDateTime
     await file.writeAsBytes(bytes, flush: true);
 
     OpenFile.open(file.path);

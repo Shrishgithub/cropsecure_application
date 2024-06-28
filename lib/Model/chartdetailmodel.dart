@@ -182,9 +182,9 @@ class RainDatum {
   });
 
   factory RainDatum.fromMap(Map<String, dynamic> json) => RainDatum(
-        rain: json["Rain"].toString(),
+        rain: json["Rain"].toString().replaceAll(',', ''),
         deviceDate: DateTime.parse(json["DeviceDate"]),
-        cumulativeRain: json["CumulativeRain"].toString(),
+        cumulativeRain: json["CumulativeRain"].toString().replaceAll(',', ''),
       );
 
   Map<String, dynamic> toMap() => {
